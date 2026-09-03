@@ -117,6 +117,18 @@
           <h2
             class="text-[10px] xs:text-[11px] font-bold text-gray-400 mb-3 flex items-center gap-1.5 uppercase tracking-wide"
           >
+            <i class="fa-solid fa-file-pdf text-primary"></i>
+            ดาวน์โหลดแบบฟอร์มเอกสาร
+          </h2>
+          <div id="forms-container" class="space-y-2"></div>
+        </div>
+
+        <hr class="border-gray-100 mx-4 xs:mx-5 my-5" />
+
+        <div class="px-4 xs:px-5">
+          <h2
+            class="text-[10px] xs:text-[11px] font-bold text-gray-400 mb-3 flex items-center gap-1.5 uppercase tracking-wide"
+          >
             <i class="fa-solid fa-scale-balanced text-primary"></i>
             คำถามเกี่ยวกับ พ.ร.บ กฎหมาย
           </h2>
@@ -199,33 +211,23 @@
             <button
               onclick="
                 document.getElementById('chat-input').value =
-                  'สิทธิเด็กแรกเกิดมีอะไรบ้าง';
+                  'ขอแบบฟอร์มทำบัตรคนพิการหน่อยครับ';
                 document.getElementById('send-btn').click();
               "
               class="bg-white border border-gray-200 py-2 px-3 xs:py-2.5 xs:px-4 rounded-xl text-[12px] xs:text-sm text-gray-600 font-medium hover:border-primary hover:text-primary transition shadow-sm flex items-center gap-1.5 xs:gap-2"
             >
-              <i class="fa-solid fa-child text-primary"></i> สิทธิเด็กแรกเกิด
+              <i class="fa-solid fa-file-pdf text-primary"></i> ฟอร์มบัตรคนพิการ
             </button>
             <button
               onclick="
                 document.getElementById('chat-input').value =
-                  'เบี้ยยังชีพผู้สูงอายุ';
+                  'ขอแบบฟอร์มซ่อมแซมบ้านผู้สูงอายุหน่อยครับ';
                 document.getElementById('send-btn').click();
               "
               class="bg-white border border-gray-200 py-2 px-3 xs:py-2.5 xs:px-4 rounded-xl text-[12px] xs:text-sm text-gray-600 font-medium hover:border-primary hover:text-primary transition shadow-sm flex items-center gap-1.5 xs:gap-2"
             >
-              <i class="fa-solid fa-person-cane text-primary"></i>
-              เบี้ยผู้สูงอายุ
-            </button>
-            <button
-              onclick="
-                document.getElementById('chat-input').value =
-                  'การทำบัตรคนพิการ';
-                document.getElementById('send-btn').click();
-              "
-              class="bg-white border border-gray-200 py-2 px-3 xs:py-2.5 xs:px-4 rounded-xl text-[12px] xs:text-sm text-gray-600 font-medium hover:border-primary hover:text-primary transition shadow-sm flex items-center gap-1.5 xs:gap-2"
-            >
-              <i class="fa-solid fa-wheelchair text-primary"></i> บัตรคนพิการ
+              <i class="fa-solid fa-house-chimney text-primary"></i>
+              ซ่อมบ้านผู้สูงอายุ
             </button>
           </div>
         </div>
@@ -289,6 +291,7 @@
     </main>
 
     <script src="data.js"></script>
+    <script src="knowledge.js"></script>
     <script src="script.js"></script>
   </body>
 </html>
