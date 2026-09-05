@@ -1,50 +1,37 @@
 module.exports = async function handler(req, res) {
-    // ป้องกันปัญหาการข้ามโดเมน (CORS)
     res.setHeader('Access-Control-Allow-Credentials', true);
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
     res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
 
     if (req.method === 'OPTIONS') return res.status(200).end();
-    if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
     try {
-        const { userText, systemPrompt } = req.body;
-        
-        // ดึง API Key (รหัส AQ...) จาก Vercel
         const apiKey = process.env.GEMINI_API_KEY; 
 
         if (!apiKey) {
-            return res.status(500).json({ error: 'API Key is missing' });
+            return res.status(200).json({ reply: "❌ ไม่พบ API Key กรุณาตรวจสอบใน Vercel" });
         }
 
-        // เชื่อมต่อด้วย fetch และใช้ชื่อโมเดล gemini-1.5-flash ที่ถูกต้อง
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                systemInstruction: { parts: [{ text: systemPrompt }] },
-                contents: [{ role: "user", parts: [{ text: userText }] }],
-                generationConfig: { temperature: 0.4 }
-            })
-        });
+        // วิ่งไปขอรายชื่อโมเดลทั้งหมดที่ API Key นี้มีสิทธิ์ใช้
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
+        
+        const response = await fetch(apiUrl);
+        const data = await response.json();
 
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error?.message || 'Gemini API Error');
+            return res.status(200).json({ reply: "🚨 Google แจ้ง Error ว่า:<br>" + JSON.stringify(data) });
         }
         
-        const data = await response.json();
-        let aiReply = data.candidates[0].content.parts[0].text;
+        // ดึงชื่อโมเดลมาจัดเรียงให้อ่านง่าย
+        const modelNames = data.models ? data.models.map(m => m.name).join('<br>• ') : "ไม่พบรายชื่อโมเดล";
         
-        res.status(200).json({ reply: aiReply.replace(/\n/g, '<br>') });
+        // ส่งรายชื่อกลับไปโชว์ที่หน้าแชท
+        res.status(200).json({ 
+            reply: `✅ <b>เชื่อมต่อ Google สำเร็จ!</b><br>นี่คือชื่อโมเดลทั้งหมดที่คุณใช้ได้ (ให้ดูบรรทัดที่มีคำว่า generateContent):<br><br>• ${modelNames}<br><br>ก๊อปปี้ชื่อโมเดลที่อยากใช้มาบอกผมได้เลยครับ!` 
+        });
 
     } catch (error) {
-        console.error('Server Error:', error);
-        res.status(500).json({ error: error.message });
+        res.status(200).json({ reply: "🚨 Server Error: " + error.message });
     }
 };
