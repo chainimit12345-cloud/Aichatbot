@@ -1,43 +1,55 @@
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method Not Allowed" });
-  }
+module.exports = async function handler(req, res) {
+    // ป้องกันปัญหา CORS
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+    res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
 
-  try {
-    const { userText, systemPrompt } = req.body;
-
-    // ดึง API Key จาก Vercel Environment Variables
-    const apiKey = process.env.GEMINI_API_KEY;
-
-    if (!apiKey) {
-      return res.status(500).json({ error: "API Key is missing on server" });
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
     }
 
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-
-    const response = await fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: systemPrompt }] },
-        contents: [{ role: "user", parts: [{ text: userText }] }],
-        generationConfig: { temperature: 0.2 },
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error?.message || "Gemini API Error");
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    const data = await response.json();
-    let aiReply = data.candidates[0].content.parts[0].text;
+    try {
+        const { userText, systemPrompt } = req.body;
+        
+        // 🔴 ปลอดภัย 100% - ดึงรหัสจาก Environment Variables ของ Vercel 
+        // โค้ดใน GitHub จะเห็นแค่นี้ ไม่มีใครรู้รหัสจริง
+        const apiKey = process.env.GEMINI_API_KEY; 
 
-    res.status(200).json({ reply: aiReply.replace(/\n/g, "<br>") });
-  } catch (error) {
-    console.error("Server Error:", error);
-    res.status(500).json({ error: "Failed to fetch AI response" });
-  }
-}
+        if (!apiKey) {
+            return res.status(500).json({ error: 'API Key is missing on Vercel Environment Variables' });
+        }
+
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+                contents: [{ role: "user", parts: [{ text: userText }] }],
+                generationConfig: { temperature: 0.4 }
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error?.message || 'Gemini API Error');
+        }
+        
+        const data = await response.json();
+        let aiReply = data.candidates[0].content.parts[0].text;
+        
+        res.status(200).json({ reply: aiReply.replace(/\n/g, '<br>') });
+
+    } catch (error) {
+        console.error('Server Error:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
