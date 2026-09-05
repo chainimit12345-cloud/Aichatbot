@@ -15,7 +15,8 @@ module.exports = async function handler(req, res) {
             return res.status(200).json({ reply: "❌ ไม่พบ API Key ใน Vercel" });
         }
 
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+        // 🔴 อัปเดตชื่อโมเดลเป็น gemini-3.6-flash ตามคำสั่งของ Google เป๊ะๆ
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
 
         const response = await fetch(apiUrl, {
             method: 'POST',
@@ -29,7 +30,6 @@ module.exports = async function handler(req, res) {
 
         const data = await response.json();
 
-        // 🔴 ถ้า Google ปฏิเสธการเชื่อมต่อ ให้เอาสาเหตุมาแสดงที่หน้าแชทเลย
         if (!response.ok) {
             const errorMsg = data.error?.message || JSON.stringify(data);
             return res.status(200).json({ 
@@ -37,12 +37,10 @@ module.exports = async function handler(req, res) {
             });
         }
         
-        // ถ้าสำเร็จ ก็ตอบกลับตามปกติ
         let aiReply = data.candidates[0].content.parts[0].text;
         res.status(200).json({ reply: aiReply.replace(/\n/g, '<br>') });
 
     } catch (error) {
-        // ถ้าเซิร์ฟเวอร์พัง ให้ฟ้องบนหน้าแชท
         res.status(200).json({ reply: "🚨 ระบบ Vercel ขัดข้อง: " + error.message });
     }
 };
