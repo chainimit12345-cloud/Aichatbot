@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   // ----------------------------------------------------------------
-  // 1. ฟังก์ชันสร้างเมนูด้านซ้ายจากไฟล์ data.js (APP_DATA)
+  // 1. ฟังก์ชันสร้างเมนูด้านซ้ายจากไฟล์ data.js
   // ----------------------------------------------------------------
   function renderSidebarData() {
     let phonesHTML = "";
@@ -105,9 +105,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   renderSidebarData();
 
-  // ----------------------------------------------------------------
-  // 2. ระบบ Hamburger Menu
-  // ----------------------------------------------------------------
   const sidebar = document.getElementById("sidebar");
   const overlay = document.getElementById("sidebar-overlay");
   const hamburgerBtn = document.getElementById("hamburger-btn");
@@ -125,7 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (overlay) overlay.addEventListener("click", toggleMenu);
 
   // ----------------------------------------------------------------
-  // 3. ระบบ AI Chat
+  // 2. ระบบ AI Chat
   // ----------------------------------------------------------------
   const inputField = document.getElementById("chat-input");
   const sendBtn = document.getElementById("send-btn");
@@ -136,14 +133,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let isFirstMessage = true;
 
-  // 🔴 นำ API Key จาก Google AI Studio มาใส่ตรงนี้
-  const GEMINI_API_KEY = "ใส่_API_KEY_ของคุณที่นี่";
-  const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-
   async function fetchAIResponse(userText) {
     const text = userText.trim();
 
-    // 1. ดักคำสั่งข้อมูลติดต่อ
+    // 2.1 ดักคำสั่งข้อมูลติดต่อ
     if (
       text.includes("ติดต่อ") ||
       text.includes("เบอร์") ||
@@ -170,7 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // 2. ดักคำสั่งขอโหลดเอกสารฟอร์มผ่านทางแชท
+    // 2.2 ดักคำสั่งขอโหลดเอกสารฟอร์มผ่านทางแชท
     if (
       text.includes("ขอรับเงินจัดการศพผู้สูงอายุ") ||
       text.includes("จัดการศพ")
@@ -214,9 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (
       text.includes("เปลี่ยนผู้ดูแล") ||
-      text.includes("เปลี่ยนแปลงผู้ดูแลคนพิการ") ||
-      text.includes("เปลี่ยนแปลงผู้ดูแล") ||
-      text.includes("ผู้ดูแลคนพิการ")
+      text.includes("เปลี่ยนแปลงผู้ดูแลคนพิการ")
     ) {
       return new Promise((resolve) =>
         setTimeout(
@@ -297,7 +288,7 @@ document.addEventListener("DOMContentLoaded", () => {
       );
     }
 
-    // 3. ดักคำสั่งขอดูหมวดกฎหมายแบบ Scrollbox
+    // 2.3 ดักคำสั่งขอดูหมวดกฎหมายแบบ Scrollbox
     if (text === "หมวดกฎหมายเด็กและเยาวชน") {
       return new Promise((resolve) => {
         setTimeout(() => {
@@ -326,76 +317,66 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // 4. ถ้าไม่มี API Key ให้ทำงานแบบออฟไลน์
-    if (GEMINI_API_KEY === "ใส่_API_KEY_ของคุณที่นี่") {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          if (typeof LAW_CHILD_KNOWLEDGE !== "undefined" && text.length > 1) {
-            let lines = LAW_CHILD_KNOWLEDGE.split("\n")
-              .map((line) => line.trim())
-              .filter((line) => line.length > 0);
-            let foundResults = lines.filter((line) => line.includes(text));
-
-            if (foundResults.length > 0) {
-              let limitResults = foundResults.slice(0, 5);
-              let responseHtml = `<p class="mb-3 text-primary font-bold"><i class="fa-solid fa-magnifying-glass"></i> พบข้อมูลที่ตรงกับคำว่า "${text}":</p>`;
-
-              limitResults.forEach((line) => {
-                let highlightRegex = new RegExp(text, "gi");
-                let highlightedLine = line.replace(
-                  highlightRegex,
-                  `<span class="bg-yellow-200 text-gray-900 px-1 rounded font-semibold">${text}</span>`,
-                );
-                responseHtml += `<div class="bg-blue-50/50 p-3 rounded-xl border border-blue-100 mb-2 text-[12.5px] xs:text-[13px] leading-relaxed shadow-sm">${highlightedLine}</div>`;
-              });
-
-              if (foundResults.length > 5) {
-                responseHtml += `<p class="text-[10px] text-gray-400 mt-2 text-center">(พบข้อมูลอื่นๆ อีก ${foundResults.length - 5} รายการ แนะนำให้พิมพ์คำค้นหาเจาะจงขึ้นค่ะ)</p>`;
-              }
-              return resolve(responseHtml);
-            }
-          }
-          resolve(
-            `ขออภัยค่ะ ตอนนี้ฉันยังไม่พบข้อมูลที่ตรงกับคำว่า <b>"${text}"</b> ในระบบค่ะ (ขณะนี้ทำงานในโหมด Offline ยังไม่ได้ต่อ API)`,
-          );
-        }, 600);
-      });
-    }
-
-    // 5. โหมดใช้งานจริง (API Gemini)
+    // 2.4 โหมดใช้งานจริง (API Gemini - เรียกผ่าน Backend Vercel)
     try {
-      const systemPrompt = `คุณคือ AI ผู้ช่วยด้านสิทธิสวัสดิการและกฎหมาย ของสำนักงานพัฒนาสังคมและความมั่นคงของมนุษย์จังหวัดสกลนคร (พมจ.สกลนคร)
-            หน้าที่ของคุณคือตอบคำถามประชาชนอย่างสุภาพ เข้าใจง่าย ถูกต้องตามกฎหมาย และจัดรูปแบบให้อ่านง่าย
+      const systemPrompt = `
+            ${typeof AI_PERSONA !== "undefined" ? AI_PERSONA : "คุณคือ AI ผู้ช่วยตอบคำถามทั่วไป"}
             
-            กรุณาใช้ข้อมูลอ้างอิงจาก "คลังข้อมูลกฎหมายเด็กและเยาวชน" ต่อไปนี้เป็นหลักในการตอบคำถาม:
+            คลังข้อมูลกฎหมายสำหรับอ้างอิง:
             """
             ${typeof LAW_CHILD_KNOWLEDGE !== "undefined" ? LAW_CHILD_KNOWLEDGE : "ไม่มีข้อมูลกฎหมาย"}
             """
-            
-            หากคำถามไหนไม่มีคำตอบในคลังข้อมูลนี้ ให้ตอบตามความรู้ทั่วไปของคุณ หรือแนะนำให้ติดต่อเจ้าหน้าที่ พม. ผ่านเบอร์ 042-711-471`;
+            `;
 
-      const response = await fetch(GEMINI_API_URL, {
+      // วิ่งไปหาไฟล์ api/chat.js ที่เราสร้างไว้ใน Backend
+      const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          systemInstruction: { parts: [{ text: systemPrompt }] },
-          contents: [{ role: "user", parts: [{ text: userText }] }],
-          generationConfig: { temperature: 0.2 },
+          userText: text,
+          systemPrompt: systemPrompt,
         }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Gemini API Error details:", errorData);
-        throw new Error("Network response was not ok");
+        console.error("Server Error:", data);
+        throw new Error("API Key missing or server error");
       }
 
-      const data = await response.json();
-      let aiReply = data.candidates[0].content.parts[0].text;
-      return aiReply.replace(/\n/g, "<br>");
+      return data.reply;
     } catch (error) {
-      console.error("API Error:", error);
-      return '<span class="text-red-500">ขออภัยค่ะ ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ AI ได้ในขณะนี้ โปรดตรวจสอบ API Key ค่ะ</span>';
+      console.error("API/Network Error:", error);
+
+      // ถ้าระบบ Backend พัง หรือยังไม่ได้ตั้งค่า API_KEY ให้กลับมาใช้ระบบ Offline ค้นหาไฟล์แทน
+      if (typeof LAW_CHILD_KNOWLEDGE !== "undefined" && text.length > 1) {
+        let lines = LAW_CHILD_KNOWLEDGE.split("\n")
+          .map((line) => line.trim())
+          .filter((line) => line.length > 0);
+        let foundResults = lines.filter((line) => line.includes(text));
+
+        if (foundResults.length > 0) {
+          let limitResults = foundResults.slice(0, 5);
+          let responseHtml = `<p class="mb-3 text-primary font-bold"><i class="fa-solid fa-magnifying-glass"></i> พบข้อมูลที่ตรงกับคำว่า "${text}":</p>`;
+
+          limitResults.forEach((line) => {
+            let highlightRegex = new RegExp(text, "gi");
+            let highlightedLine = line.replace(
+              highlightRegex,
+              `<span class="bg-yellow-200 text-gray-900 px-1 rounded font-semibold">${text}</span>`,
+            );
+            responseHtml += `<div class="bg-blue-50/50 p-3 rounded-xl border border-blue-100 mb-2 text-[12.5px] xs:text-[13px] leading-relaxed shadow-sm">${highlightedLine}</div>`;
+          });
+
+          if (foundResults.length > 5) {
+            responseHtml += `<p class="text-[10px] text-gray-400 mt-2 text-center">(พบข้อมูลอื่นๆ อีก ${foundResults.length - 5} รายการ แนะนำให้พิมพ์คำค้นหาเจาะจงขึ้นค่ะ)</p>`;
+          }
+          return responseHtml;
+        }
+      }
+
+      return `ขออภัยค่ะ ตอนนี้ฉันไม่สามารถวิเคราะห์ข้อมูลแบบละเอียดได้ และไม่พบคำว่า <b>"${text}"</b> ในฐานข้อมูลออฟไลน์ค่ะ`;
     }
   }
 
@@ -513,4 +494,3 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
-ฆ
