@@ -12,10 +12,9 @@ module.exports = async function handler(req, res) {
         const apiKey = process.env.GEMINI_API_KEY; 
 
         if (!apiKey) {
-            return res.status(200).json({ reply: "❌ ไม่พบ API Key ใน Vercel" });
+            return res.status(200).json({ reply: "ขออภัยค่ะ ตอนนี้ระบบขัดข้องชั่วคราว รบกวนติดต่อเจ้าหน้าที่นะคะ" });
         }
 
-        // 🔴 อัปเดตชื่อโมเดลเป็น gemini-3.6-flash ตามคำสั่งของ Google เป๊ะๆ
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
 
         const response = await fetch(apiUrl, {
@@ -31,9 +30,9 @@ module.exports = async function handler(req, res) {
         const data = await response.json();
 
         if (!response.ok) {
-            const errorMsg = data.error?.message || JSON.stringify(data);
+            console.error("Google API Error:", data); // แอบเก็บ Error ไว้ดูหลังบ้านแทน
             return res.status(200).json({ 
-                reply: `🚨 <b>ข้อผิดพลาดจาก Google:</b><br>${errorMsg}` 
+                reply: "ขออภัยค่ะ ระบบไม่สามารถประมวลผลได้ในขณะนี้ กรุณาลองสอบถามใหม่อีกครั้งนะคะ" 
             });
         }
         
@@ -41,6 +40,7 @@ module.exports = async function handler(req, res) {
         res.status(200).json({ reply: aiReply.replace(/\n/g, '<br>') });
 
     } catch (error) {
-        res.status(200).json({ reply: "🚨 ระบบ Vercel ขัดข้อง: " + error.message });
+        console.error("Server Error:", error);
+        res.status(200).json({ reply: "ขออภัยค่ะ การเชื่อมต่อขัดข้อง กรุณาลองใหม่อีกครั้งนะคะ" });
     }
 };
