@@ -16,15 +16,15 @@ module.exports = async function handler(req, res) {
     try {
         const { userText, systemPrompt } = req.body;
         
-        // 🔴 ปลอดภัย 100% - ดึงรหัสจาก Environment Variables ของ Vercel 
-        // โค้ดใน GitHub จะเห็นแค่นี้ ไม่มีใครรู้รหัสจริง
+        // ดึง API Key จาก Environment Variables ของ Vercel
         const apiKey = process.env.GEMINI_API_KEY; 
 
         if (!apiKey) {
             return res.status(500).json({ error: 'API Key is missing on Vercel Environment Variables' });
         }
 
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        // 🔴 แก้ไขตรงนี้: เปลี่ยนชื่อ Model เป็น gemini-1.5-flash-latest เพื่อให้ Google รองรับ 100%
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
 
         const response = await fetch(apiUrl, {
             method: 'POST',
