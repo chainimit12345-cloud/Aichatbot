@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI พมจ.สกลนคร</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -26,10 +27,12 @@
         },
       };
     </script>
+    <!-- FontAwesome for Icons -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
+    <!-- Google Fonts (Thai Font) -->
     <link
       href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap"
       rel="stylesheet"
@@ -55,9 +58,10 @@
       class="fixed inset-0 bg-gray-900/40 z-40 hidden backdrop-blur-sm transition-opacity lg:hidden"
     ></div>
 
+    <!-- 🔴 ปรับ w-full ให้เมนูยืดเต็มจอบนมือถือตรงนี้ -->
     <aside
       id="sidebar"
-      class="fixed lg:relative inset-y-0 left-0 z-50 w-[280px] xs:w-[300px] flex-shrink-0 bg-white border-r border-gray-100 flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none overflow-y-auto"
+      class="fixed lg:relative inset-y-0 left-0 z-50 w-full lg:w-[300px] flex-shrink-0 bg-white border-r border-gray-100 flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none overflow-y-auto"
     >
       <div class="p-4 xs:p-6 pb-4 flex items-center justify-between">
         <div class="flex items-center gap-3">
@@ -139,14 +143,17 @@
         class="absolute top-0 left-0 right-0 h-[60px] xs:h-[68px] md:h-[76px] px-4 xs:px-6 md:px-8 bg-bg-app/80 backdrop-blur-md flex items-center justify-between z-20"
       >
         <div class="flex items-center gap-3">
+          
+          <!-- ปุ่ม 3 ขีดที่ปรับปรุงให้เต็มและใหญ่ขึ้น -->
           <button
             id="hamburger-btn"
             class="w-11 h-11 xs:w-12 xs:h-12 flex lg:hidden flex-col justify-center items-center gap-[5px] text-gray-600 hover:text-primary hover:bg-gray-100 rounded-xl transition mr-1 -ml-2 xs:ml-0"
           >
-            <span class="w-6 xs:w-7 h-[3px] bg-current rounded-full"></span>
-            <span class="w-6 xs:w-7 h-[3px] bg-current rounded-full"></span>
-            <span class="w-6 xs:w-7 h-[3px] bg-current rounded-full"></span>
+            <span class="w-6 xs:w-7 h-[3px] bg-current rounded-full transition-all duration-300"></span>
+            <span class="w-6 xs:w-7 h-[3px] bg-current rounded-full transition-all duration-300"></span>
+            <span class="w-6 xs:w-7 h-[3px] bg-current rounded-full transition-all duration-300"></span>
           </button>
+
           <div>
             <h2
               class="text-base xs:text-lg md:text-xl font-bold flex items-center gap-2"
