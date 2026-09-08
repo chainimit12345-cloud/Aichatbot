@@ -143,6 +143,17 @@ document.addEventListener("DOMContentLoaded", () => {
   async function fetchAIResponse(userText) {
     const text = userText.trim();
 
+    // 🔴 0. ระบบดักจับคำทักทายพื้นฐาน (ตอบไว ไม่ต้องพึ่ง AI) 
+    // ถ้าพิมพ์แค่ สวัสดี, ดีครับ, ดีค่ะ โดยไม่มีคำถามต่อท้าย ระบบจะตอบอันนี้ทันที
+    const isGreeting = /^(สวัสดี|หวัดดี|ดีครับ|ดีค่ะ|ทักทาย|hello|hi) *(ครับ|ค่ะ|จ้า|คับ)?$/i.test(text);
+    if (isGreeting || (text.includes("สวัสดี") && text.length <= 15)) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve("สวัสดีค่ะ 🤖 ยินดีต้อนรับสู่บริการ AI ผู้ช่วย พมจ.สกลนคร ค่ะ วันนี้มีสิทธิสวัสดิการด้านไหนให้ฉันช่วยดูแล หรือต้องการสอบถามข้อมูลอะไร พิมพ์บอกมาได้เลยนะคะ");
+        }, 500);
+      });
+    }
+
     // 1. ระบบข้อมูลติดต่อแบบตอบไว
     if (
       text.includes("ติดต่อ") ||
@@ -358,7 +369,6 @@ document.addEventListener("DOMContentLoaded", () => {
       let relevantLaws = "";
       const userMsg = text.toLowerCase();
 
-      // ดึงเฉพาะกฎหมายที่ตรงกับเจตนาของผู้ใช้ เพื่อไม่ให้ข้อมูลล้น Token Limit
       if (/(เด็ก|เยาวชน|ลูก|บุตร|แรกเกิด|ทารก|ครรภ์|นักเรียน|โรงเรียน)/.test(userMsg)) {
         if (typeof LAW_CHILD_KNOWLEDGE !== "undefined") relevantLaws += LAW_CHILD_KNOWLEDGE + "\n";
       }
@@ -372,7 +382,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (typeof LAW_ELDERLY_KNOWLEDGE !== "undefined") relevantLaws += LAW_ELDERLY_KNOWLEDGE + "\n";
       }
 
-      // กรณีถามกว้างๆ เกี่ยวกับสิทธิ/กฎหมาย ให้แนบทั้งหมด
       if (relevantLaws === "" && /(กฎหมาย|สิทธิ|สวัสดิการ|ช่วยเหลือ|พ.ร.บ|เงิน)/.test(userMsg)) {
         if (typeof LAW_CHILD_KNOWLEDGE !== "undefined") relevantLaws += LAW_CHILD_KNOWLEDGE + "\n";
         if (typeof LAW_WOMEN_FAMILY_KNOWLEDGE !== "undefined") relevantLaws += LAW_WOMEN_FAMILY_KNOWLEDGE + "\n";
@@ -405,7 +414,6 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (error) {
       console.error("Network Error:", error);
 
-      // โหมดออฟไลน์ ค้นหาคำจากคลังกฎหมายทั้งหมดเมื่อ API พัง
       let allLawsFallback = "";
       if (typeof LAW_CHILD_KNOWLEDGE !== "undefined") allLawsFallback += LAW_CHILD_KNOWLEDGE + "\n";
       if (typeof LAW_WOMEN_FAMILY_KNOWLEDGE !== "undefined") allLawsFallback += LAW_WOMEN_FAMILY_KNOWLEDGE + "\n";
