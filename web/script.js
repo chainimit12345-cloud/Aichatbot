@@ -143,6 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function fetchAIResponse(userText) {
     const text = userText.trim();
 
+    // 1. ระบบตอบกลับรวดเร็วสำหรับข้อมูลเบื้องต้น
     if (
       text.includes("ติดต่อ") ||
       text.includes("เบอร์") ||
@@ -293,39 +294,49 @@ document.addEventListener("DOMContentLoaded", () => {
       );
     }
 
-    // --- ส่วนแสดงข้อความกฎหมายแบบสรุปหัวข้อ บนหน้าเว็บ (อัปเดตตามแบบฟอร์มล่าสุด) ---
+    // 🔴 แก้ไขแล้ว: เปลี่ยนจากการเช็คคำเป๊ะๆ เป็นการดักจับ Keyword (รับรองว่าเข้า UI สวยๆ ทุกหมวดแน่นอน)
+    let isLawCategory = false;
+    let matchedCategory = "";
+    let targetKnowledge = "";
+
     if (
-      [
-        "หมวดกฎหมายเด็กและเยาวชน",
-        "หมวดกฎหมายสตรีและครอบครัว",
-        "หมวดกฎหมายคนพิการ",
-        "หมวดกฎหมายผู้สูงอายุ",
-      ].includes(text)
+      text.includes("กฎหมาย") &&
+      (text.includes("เด็ก") || text.includes("เยาวชน"))
     ) {
+      isLawCategory = true;
+      matchedCategory = "หมวดกฎหมายเด็กและเยาวชน";
+      targetKnowledge =
+        typeof LAW_CHILD_KNOWLEDGE !== "undefined" ? LAW_CHILD_KNOWLEDGE : "";
+    } else if (
+      text.includes("กฎหมาย") &&
+      (text.includes("สตรี") || text.includes("ครอบครัว"))
+    ) {
+      isLawCategory = true;
+      matchedCategory = "หมวดกฎหมายสตรีและครอบครัว";
+      targetKnowledge =
+        typeof LAW_WOMEN_FAMILY_KNOWLEDGE !== "undefined"
+          ? LAW_WOMEN_FAMILY_KNOWLEDGE
+          : "";
+    } else if (text.includes("กฎหมาย") && text.includes("คนพิการ")) {
+      isLawCategory = true;
+      matchedCategory = "หมวดกฎหมายคนพิการ";
+      targetKnowledge =
+        typeof LAW_DISABLED_KNOWLEDGE !== "undefined"
+          ? LAW_DISABLED_KNOWLEDGE
+          : "";
+    } else if (text.includes("กฎหมาย") && text.includes("ผู้สูงอายุ")) {
+      isLawCategory = true;
+      matchedCategory = "หมวดกฎหมายผู้สูงอายุ";
+      targetKnowledge =
+        typeof LAW_ELDERLY_KNOWLEDGE !== "undefined"
+          ? LAW_ELDERLY_KNOWLEDGE
+          : "";
+    }
+
+    // 2. ระบบตอบกลับด้วยการแนะนำตัวและสรุปหัวข้อกฎหมาย (ถ้าตรงเงื่อนไข Keyword ด้านบน)
+    if (isLawCategory) {
       return new Promise((resolve) => {
         setTimeout(() => {
-          let targetKnowledge = "";
-          if (text === "หมวดกฎหมายเด็กและเยาวชน")
-            targetKnowledge =
-              typeof LAW_CHILD_KNOWLEDGE !== "undefined"
-                ? LAW_CHILD_KNOWLEDGE
-                : "";
-          else if (text === "หมวดกฎหมายสตรีและครอบครัว")
-            targetKnowledge =
-              typeof LAW_WOMEN_FAMILY_KNOWLEDGE !== "undefined"
-                ? LAW_WOMEN_FAMILY_KNOWLEDGE
-                : "";
-          else if (text === "หมวดกฎหมายคนพิการ")
-            targetKnowledge =
-              typeof LAW_DISABLED_KNOWLEDGE !== "undefined"
-                ? LAW_DISABLED_KNOWLEDGE
-                : "";
-          else if (text === "หมวดกฎหมายผู้สูงอายุ")
-            targetKnowledge =
-              typeof LAW_ELDERLY_KNOWLEDGE !== "undefined"
-                ? LAW_ELDERLY_KNOWLEDGE
-                : "";
-
           if (targetKnowledge) {
             // ดึงเฉพาะหัวข้อหลักที่อยู่ในเครื่องหมาย ** ... **
             let headings = [];
@@ -354,7 +365,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // HTML ประกอบหน้าจอ AI
             let responseHtml = `
             <div class="mb-4">
-                <b class="text-gray-800 text-[14px] xs:text-[15px]">สวัสดีค่ะ ยินดีต้อนรับเข้าสู่${text} ⚖️</b>
+                <b class="text-gray-800 text-[14px] xs:text-[15px]">สวัสดีค่ะ ยินดีต้อนรับเข้าสู่${matchedCategory} ⚖️</b>
                 <p class="mt-2 text-[13px] xs:text-[14px] text-gray-600">ในหมวดนี้มีข้อมูลพระราชบัญญัติหลักๆ ดังนี้ค่ะ:</p>
             </div>
             <ul class="text-[12.5px] xs:text-[13.5px] pl-1 mb-5">
@@ -375,8 +386,8 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
+    // 3. ระบบส่งข้อมูลให้ AI วิเคราะห์ และ โหมดค้นหาสำรอง (กรณีผู้ใช้ถามเจาะจงเข้ามา)
     try {
-      // 🔴 รวมกฎหมายทั้ง 4 หมวด เพื่อส่งให้ AI ประมวลผล
       let allLaws = "";
       if (typeof LAW_CHILD_KNOWLEDGE !== "undefined")
         allLaws += LAW_CHILD_KNOWLEDGE + "\n";
@@ -416,7 +427,6 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (error) {
       console.error("Network Error:", error);
 
-      // 🔴 โหมดออฟไลน์ ค้นหาคำจากกฎหมายทั้ง 4 หมวด
       let allLaws = "";
       if (typeof LAW_CHILD_KNOWLEDGE !== "undefined")
         allLaws += LAW_CHILD_KNOWLEDGE + "\n";
