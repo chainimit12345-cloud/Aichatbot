@@ -143,7 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function fetchAIResponse(userText) {
     const text = userText.trim();
 
-    // 1. ระบบข้อมูลติดต่อ (ถ้าถามหาการติดต่อ)
+    // 1. ระบบข้อมูลติดต่อแบบตอบไว
     if (
       text.includes("ติดต่อ") ||
       text.includes("เบอร์") ||
@@ -170,32 +170,15 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // 🔴 แก้ไขแล้ว: เพิ่มตัวคัดกรองคำถาม (ถ้าผู้ใช้ตั้งคำถาม จะไม่ส่งแบบฟอร์ม แต่จะส่งให้ AI วิเคราะห์แทน)
+    // ตัวคัดกรองเจตนา (Intent Filter) ป้องกันการแจกฟอร์มพร่ำเพรื่อ
     const questionKeywords = [
-      "สอบถาม",
-      "ทำยังไง",
-      "ทำไง",
-      "ยังไง",
-      "ข้อมูล",
-      "รายละเอียด",
-      "อะไร",
-      "เงื่อนไข",
-      "อยากถาม",
-      "อยากทราบ",
-      "กี่บาท",
-      "ขั้นตอน",
-      "แบบไหน",
+      "สอบถาม", "ทำยังไง", "ทำไง", "ยังไง", "ข้อมูล", "รายละเอียด", "อะไร", 
+      "เงื่อนไข", "อยากถาม", "อยากทราบ", "กี่บาท", "ขั้นตอน", "แบบไหน"
     ];
-    const isQuestionContext = questionKeywords.some((keyword) =>
-      text.includes(keyword),
-    );
+    const isQuestionContext = questionKeywords.some((keyword) => text.includes(keyword));
 
-    // ถ้าไม่ใช่การตั้งคำถาม (เป็นเพียงการบอกคีย์เวิร์ดสั้นๆ หรือกดปุ่มเมนู) ค่อยแสดงแบบฟอร์ม
     if (!isQuestionContext) {
-      if (
-        text.includes("ขอรับเงินจัดการศพผู้สูงอายุ") ||
-        text.includes("จัดการศพ")
-      ) {
+      if (text.includes("ขอรับเงินจัดการศพผู้สูงอายุ") || text.includes("จัดการศพ")) {
         return new Promise((resolve) =>
           setTimeout(
             () =>
@@ -212,11 +195,7 @@ document.addEventListener("DOMContentLoaded", () => {
         );
       }
 
-      if (
-        text.includes("ทำบัตรคนพิการ") ||
-        text.includes("บัตรประจำตัวคนพิการ") ||
-        text.includes("บัตรคนพิการ")
-      ) {
+      if (text.includes("ทำบัตรคนพิการ") || text.includes("บัตรประจำตัวคนพิการ") || text.includes("บัตรคนพิการ")) {
         return new Promise((resolve) =>
           setTimeout(
             () =>
@@ -233,10 +212,7 @@ document.addEventListener("DOMContentLoaded", () => {
         );
       }
 
-      if (
-        text.includes("เปลี่ยนผู้ดูแล") ||
-        text.includes("เปลี่ยนแปลงผู้ดูแลคนพิการ")
-      ) {
+      if (text.includes("เปลี่ยนผู้ดูแล") || text.includes("เปลี่ยนแปลงผู้ดูแลคนพิการ")) {
         return new Promise((resolve) =>
           setTimeout(
             () =>
@@ -253,11 +229,7 @@ document.addEventListener("DOMContentLoaded", () => {
         );
       }
 
-      if (
-        text.includes("กู้ยืม") ||
-        text.includes("กู้เงิน") ||
-        text.includes("ขอกู้ยืมประเภทบุคคล")
-      ) {
+      if (text.includes("กู้ยืม") || text.includes("กู้เงิน") || text.includes("ขอกู้ยืมประเภทบุคคล")) {
         return new Promise((resolve) =>
           setTimeout(
             () =>
@@ -274,11 +246,7 @@ document.addEventListener("DOMContentLoaded", () => {
         );
       }
 
-      if (
-        text.includes("ผู้ประสบปัญหาทางสังคม") ||
-        text.includes("ปสค.1") ||
-        text.includes("ปสค")
-      ) {
+      if (text.includes("ผู้ประสบปัญหาทางสังคม") || text.includes("ปสค.1") || text.includes("ปสค")) {
         return new Promise((resolve) =>
           setTimeout(
             () =>
@@ -295,11 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
         );
       }
 
-      if (
-        text.includes("ซ่อมแซมบ้าน") ||
-        text.includes("ปรับปรุงที่อยู่อาศัย") ||
-        text.includes("ซ่อมบ้าน")
-      ) {
+      if (text.includes("ซ่อมแซมบ้าน") || text.includes("ปรับปรุงที่อยู่อาศัย") || text.includes("ซ่อมบ้าน")) {
         return new Promise((resolve) =>
           setTimeout(
             () =>
@@ -317,43 +281,27 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // 2. ระบบตอบกลับด้วยการแนะนำตัวและสรุปหัวข้อกฎหมาย
+    // 2. ระบบตอบกลับสรุปหัวข้อเมื่อกดปุ่มเมนูกฎหมาย
     let isLawCategory = false;
     let matchedCategory = "";
     let targetKnowledge = "";
 
-    if (
-      text.includes("กฎหมาย") &&
-      (text.includes("เด็ก") || text.includes("เยาวชน"))
-    ) {
+    if (text.includes("กฎหมาย") && (text.includes("เด็ก") || text.includes("เยาวชน"))) {
       isLawCategory = true;
       matchedCategory = "หมวดกฎหมายเด็กและเยาวชน";
-      targetKnowledge =
-        typeof LAW_CHILD_KNOWLEDGE !== "undefined" ? LAW_CHILD_KNOWLEDGE : "";
-    } else if (
-      text.includes("กฎหมาย") &&
-      (text.includes("สตรี") || text.includes("ครอบครัว"))
-    ) {
+      targetKnowledge = typeof LAW_CHILD_KNOWLEDGE !== "undefined" ? LAW_CHILD_KNOWLEDGE : "";
+    } else if (text.includes("กฎหมาย") && (text.includes("สตรี") || text.includes("ครอบครัว"))) {
       isLawCategory = true;
       matchedCategory = "หมวดกฎหมายสตรีและครอบครัว";
-      targetKnowledge =
-        typeof LAW_WOMEN_FAMILY_KNOWLEDGE !== "undefined"
-          ? LAW_WOMEN_FAMILY_KNOWLEDGE
-          : "";
+      targetKnowledge = typeof LAW_WOMEN_FAMILY_KNOWLEDGE !== "undefined" ? LAW_WOMEN_FAMILY_KNOWLEDGE : "";
     } else if (text.includes("กฎหมาย") && text.includes("คนพิการ")) {
       isLawCategory = true;
       matchedCategory = "หมวดกฎหมายคนพิการ";
-      targetKnowledge =
-        typeof LAW_DISABLED_KNOWLEDGE !== "undefined"
-          ? LAW_DISABLED_KNOWLEDGE
-          : "";
+      targetKnowledge = typeof LAW_DISABLED_KNOWLEDGE !== "undefined" ? LAW_DISABLED_KNOWLEDGE : "";
     } else if (text.includes("กฎหมาย") && text.includes("ผู้สูงอายุ")) {
       isLawCategory = true;
       matchedCategory = "หมวดกฎหมายผู้สูงอายุ";
-      targetKnowledge =
-        typeof LAW_ELDERLY_KNOWLEDGE !== "undefined"
-          ? LAW_ELDERLY_KNOWLEDGE
-          : "";
+      targetKnowledge = typeof LAW_ELDERLY_KNOWLEDGE !== "undefined" ? LAW_ELDERLY_KNOWLEDGE : "";
     }
 
     if (isLawCategory) {
@@ -405,25 +353,36 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // 3. ระบบส่งข้อมูลให้ AI วิเคราะห์ (กรณีผู้ใช้พิมพ์ถามคำถามเข้ามา)
+    // 3. ส่งให้ AI วิเคราะห์ (พร้อมระบบคัดกรอง Smart Law Filter ป้องกัน API ล่ม)
     try {
-      let allLaws = "";
-      if (typeof LAW_CHILD_KNOWLEDGE !== "undefined")
-        allLaws += LAW_CHILD_KNOWLEDGE + "\n";
-      if (typeof LAW_WOMEN_FAMILY_KNOWLEDGE !== "undefined")
-        allLaws += LAW_WOMEN_FAMILY_KNOWLEDGE + "\n";
-      if (typeof LAW_DISABLED_KNOWLEDGE !== "undefined")
-        allLaws += LAW_DISABLED_KNOWLEDGE + "\n";
-      if (typeof LAW_ELDERLY_KNOWLEDGE !== "undefined")
-        allLaws += LAW_ELDERLY_KNOWLEDGE + "\n";
+      let relevantLaws = "";
+      const userMsg = text.toLowerCase();
+
+      // ดึงเฉพาะกฎหมายที่ตรงกับเจตนาของผู้ใช้ เพื่อไม่ให้ข้อมูลล้น Token Limit
+      if (/(เด็ก|เยาวชน|ลูก|บุตร|แรกเกิด|ทารก|ครรภ์|นักเรียน|โรงเรียน)/.test(userMsg)) {
+        if (typeof LAW_CHILD_KNOWLEDGE !== "undefined") relevantLaws += LAW_CHILD_KNOWLEDGE + "\n";
+      }
+      if (/(สตรี|หญิง|ครอบครัว|ภรรยา|สามี|หย่า|สมรส|รุนแรง|ข่มขืน|ทำร้าย)/.test(userMsg)) {
+        if (typeof LAW_WOMEN_FAMILY_KNOWLEDGE !== "undefined") relevantLaws += LAW_WOMEN_FAMILY_KNOWLEDGE + "\n";
+      }
+      if (/(พิการ|ทุพพลภาพ|ผู้ดูแล|ตาบอด|หูหนวก|วีลแชร์|แขนขาด|ขาขาด|ออทิสติก)/.test(userMsg)) {
+        if (typeof LAW_DISABLED_KNOWLEDGE !== "undefined") relevantLaws += LAW_DISABLED_KNOWLEDGE + "\n";
+      }
+      if (/(สูงอายุ|คนแก่|ชรา|ศพ|เสียชีวิต|ตาย|อายุ 60|บำนาญ|เบี้ยยังชีพ)/.test(userMsg)) {
+        if (typeof LAW_ELDERLY_KNOWLEDGE !== "undefined") relevantLaws += LAW_ELDERLY_KNOWLEDGE + "\n";
+      }
+
+      // กรณีถามกว้างๆ เกี่ยวกับสิทธิ/กฎหมาย ให้แนบทั้งหมด
+      if (relevantLaws === "" && /(กฎหมาย|สิทธิ|สวัสดิการ|ช่วยเหลือ|พ.ร.บ|เงิน)/.test(userMsg)) {
+        if (typeof LAW_CHILD_KNOWLEDGE !== "undefined") relevantLaws += LAW_CHILD_KNOWLEDGE + "\n";
+        if (typeof LAW_WOMEN_FAMILY_KNOWLEDGE !== "undefined") relevantLaws += LAW_WOMEN_FAMILY_KNOWLEDGE + "\n";
+        if (typeof LAW_DISABLED_KNOWLEDGE !== "undefined") relevantLaws += LAW_DISABLED_KNOWLEDGE + "\n";
+        if (typeof LAW_ELDERLY_KNOWLEDGE !== "undefined") relevantLaws += LAW_ELDERLY_KNOWLEDGE + "\n";
+      }
 
       const systemPrompt = `
             ${typeof AI_PERSONA !== "undefined" ? AI_PERSONA : "คุณคือ AI ผู้ช่วยตอบคำถามทั่วไป"}
-            
-            คลังข้อมูลกฎหมายสำหรับอ้างอิง (ห้ามแต่งเนื้อหากฎหมายเองเด็ดขาด):
-            """
-            ${allLaws || "ไม่มีข้อมูลกฎหมาย"}
-            """
+            ${relevantLaws !== "" ? `\nคลังข้อมูลกฎหมายสำหรับอ้างอิง:\n"""\n${relevantLaws}\n"""` : ""}
             `;
 
       const response = await fetch("/api/chat", {
@@ -446,19 +405,15 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (error) {
       console.error("Network Error:", error);
 
-      // โหมดออฟไลน์ ค้นหาคำจากกฎหมายทั้ง 4 หมวด (ใช้เมื่อเน็ตหลุด/API พัง)
-      let allLaws = "";
-      if (typeof LAW_CHILD_KNOWLEDGE !== "undefined")
-        allLaws += LAW_CHILD_KNOWLEDGE + "\n";
-      if (typeof LAW_WOMEN_FAMILY_KNOWLEDGE !== "undefined")
-        allLaws += LAW_WOMEN_FAMILY_KNOWLEDGE + "\n";
-      if (typeof LAW_DISABLED_KNOWLEDGE !== "undefined")
-        allLaws += LAW_DISABLED_KNOWLEDGE + "\n";
-      if (typeof LAW_ELDERLY_KNOWLEDGE !== "undefined")
-        allLaws += LAW_ELDERLY_KNOWLEDGE + "\n";
+      // โหมดออฟไลน์ ค้นหาคำจากคลังกฎหมายทั้งหมดเมื่อ API พัง
+      let allLawsFallback = "";
+      if (typeof LAW_CHILD_KNOWLEDGE !== "undefined") allLawsFallback += LAW_CHILD_KNOWLEDGE + "\n";
+      if (typeof LAW_WOMEN_FAMILY_KNOWLEDGE !== "undefined") allLawsFallback += LAW_WOMEN_FAMILY_KNOWLEDGE + "\n";
+      if (typeof LAW_DISABLED_KNOWLEDGE !== "undefined") allLawsFallback += LAW_DISABLED_KNOWLEDGE + "\n";
+      if (typeof LAW_ELDERLY_KNOWLEDGE !== "undefined") allLawsFallback += LAW_ELDERLY_KNOWLEDGE + "\n";
 
-      if (allLaws.trim().length > 0 && text.length > 1) {
-        let lines = allLaws
+      if (allLawsFallback.trim().length > 0 && text.length > 1) {
+        let lines = allLawsFallback
           .split("\n")
           .map((line) => line.trim())
           .filter((line) => line.length > 0);
