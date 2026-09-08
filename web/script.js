@@ -143,7 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function fetchAIResponse(userText) {
     const text = userText.trim();
 
-    // 1. ระบบตอบกลับรวดเร็วสำหรับข้อมูลเบื้องต้น
+    // 1. ระบบข้อมูลติดต่อ (ถ้าถามหาการติดต่อ)
     if (
       text.includes("ติดต่อ") ||
       text.includes("เบอร์") ||
@@ -170,131 +170,154 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    if (
-      text.includes("ขอรับเงินจัดการศพผู้สูงอายุ") ||
-      text.includes("จัดการศพ")
-    ) {
-      return new Promise((resolve) =>
-        setTimeout(
-          () =>
-            resolve(`
-            <div class="mb-1">
-                <p class="text-[13px] text-gray-800 font-bold mb-2">📄 แบบคําขอรับเงินสงเคราะห์และรับรองผู้รับผิดชอบในการจัดการศพผู้สูงอายุตามประเพณี (ศผส. 01)</p>
-                <p class="text-[12px] text-gray-600 mb-3 leading-relaxed"><b>เงื่อนไขสำคัญ:</b><br>• ต้องยื่นภายใน 6 เดือนนับตั้งแต่วันออกใบมรณบัตร<br>• ผู้สูงอายุที่เสียชีวิตต้องมีอายุเกิน 60 ปีบริบูรณ์ขึ้นไป สัญชาติไทย และมีคุณสมบัติตามโครงการลงทะเบียนเพื่อสวัสดิการแห่งรัฐ</p>
-                <a href="forms/แบบคําขอรับเงินสงเคราะห์และรับรองผู้รับผิดชอบในการจัดการศพผู้สูงอายุตามประเพณี.pdf" download target="_blank" class="inline-flex items-center gap-2 bg-red-50 text-red-600 border border-red-200 px-3.5 py-2 rounded-xl text-[12px] font-bold hover:bg-red-500 hover:text-white transition shadow-sm">
-                    <i class="fa-solid fa-file-pdf"></i> ดาวน์โหลดแบบฟอร์ม (PDF)
-                </a>
-            </div>`),
-          500,
-        ),
-      );
+    // 🔴 แก้ไขแล้ว: เพิ่มตัวคัดกรองคำถาม (ถ้าผู้ใช้ตั้งคำถาม จะไม่ส่งแบบฟอร์ม แต่จะส่งให้ AI วิเคราะห์แทน)
+    const questionKeywords = [
+      "สอบถาม",
+      "ทำยังไง",
+      "ทำไง",
+      "ยังไง",
+      "ข้อมูล",
+      "รายละเอียด",
+      "อะไร",
+      "เงื่อนไข",
+      "ไม่ได้ขอ",
+      "เท่าไหร่",
+      "กี่บาท",
+      "ขั้นตอน",
+      "แบบไหน",
+    ];
+    const isQuestionContext = questionKeywords.some((keyword) =>
+      text.includes(keyword),
+    );
+
+    // ถ้าไม่ใช่การตั้งคำถาม (เป็นเพียงการบอกคีย์เวิร์ดสั้นๆ หรือกดปุ่มเมนู) ค่อยแสดงแบบฟอร์ม
+    if (!isQuestionContext) {
+      if (
+        text.includes("ขอรับเงินจัดการศพผู้สูงอายุ") ||
+        text.includes("จัดการศพ")
+      ) {
+        return new Promise((resolve) =>
+          setTimeout(
+            () =>
+              resolve(`
+              <div class="mb-1">
+                  <p class="text-[13px] text-gray-800 font-bold mb-2">📄 แบบคําขอรับเงินสงเคราะห์และรับรองผู้รับผิดชอบในการจัดการศพผู้สูงอายุตามประเพณี (ศผส. 01)</p>
+                  <p class="text-[12px] text-gray-600 mb-3 leading-relaxed"><b>เงื่อนไขสำคัญ:</b><br>• ต้องยื่นภายใน 6 เดือนนับตั้งแต่วันออกใบมรณบัตร<br>• ผู้สูงอายุที่เสียชีวิตต้องมีอายุเกิน 60 ปีบริบูรณ์ขึ้นไป สัญชาติไทย และมีคุณสมบัติตามโครงการลงทะเบียนเพื่อสวัสดิการแห่งรัฐ</p>
+                  <a href="forms/แบบคําขอรับเงินสงเคราะห์และรับรองผู้รับผิดชอบในการจัดการศพผู้สูงอายุตามประเพณี.pdf" download target="_blank" class="inline-flex items-center gap-2 bg-red-50 text-red-600 border border-red-200 px-3.5 py-2 rounded-xl text-[12px] font-bold hover:bg-red-500 hover:text-white transition shadow-sm">
+                      <i class="fa-solid fa-file-pdf"></i> ดาวน์โหลดแบบฟอร์ม (PDF)
+                  </a>
+              </div>`),
+            500,
+          ),
+        );
+      }
+
+      if (
+        text.includes("ทำบัตรคนพิการ") ||
+        text.includes("บัตรประจำตัวคนพิการ") ||
+        text.includes("บัตรคนพิการ")
+      ) {
+        return new Promise((resolve) =>
+          setTimeout(
+            () =>
+              resolve(`
+              <div class="mb-1">
+                  <p class="text-[13px] text-gray-800 font-bold mb-2">📄 แบบคำขอมีบัตรประจำตัวคนพิการ</p>
+                  <p class="text-[12px] text-gray-600 mb-3 leading-relaxed"><b>การใช้งาน:</b><br>ใช้สำหรับยื่นขอมีบัตรครั้งแรก, บัตรเดิมหมดอายุ, ชำรุด, สูญหาย, มีการเปลี่ยนแปลงในสาระสำคัญ, หรืออายุครบ 60 ปีบริบูรณ์</p>
+                  <a href="forms/แบบคำขอทำบัตร.pdf" download target="_blank" class="inline-flex items-center gap-2 bg-red-50 text-red-600 border border-red-200 px-3.5 py-2 rounded-xl text-[12px] font-bold hover:bg-red-500 hover:text-white transition shadow-sm">
+                      <i class="fa-solid fa-file-pdf"></i> ดาวน์โหลดแบบฟอร์ม (PDF)
+                  </a>
+              </div>`),
+            500,
+          ),
+        );
+      }
+
+      if (
+        text.includes("เปลี่ยนผู้ดูแล") ||
+        text.includes("เปลี่ยนแปลงผู้ดูแลคนพิการ")
+      ) {
+        return new Promise((resolve) =>
+          setTimeout(
+            () =>
+              resolve(`
+              <div class="mb-1">
+                  <p class="text-[13px] text-gray-800 font-bold mb-2">📄 แบบรับรองการเปลี่ยนแปลงผู้ดูแลคนพิการ</p>
+                  <p class="text-[12px] text-gray-600 mb-3 leading-relaxed"><b>การใช้งาน:</b><br>ใช้สำหรับยื่นคำร้องเมื่อต้องการเปลี่ยนแปลงบุคคลที่ทำหน้าที่เป็นผู้ดูแลคนพิการในระบบ</p>
+                  <a href="forms/แบบรับรองการเปลี่ยนแปลงผู้ดูแลคนพิการ.pdf" download target="_blank" class="inline-flex items-center gap-2 bg-red-50 text-red-600 border border-red-200 px-3.5 py-2 rounded-xl text-[12px] font-bold hover:bg-red-500 hover:text-white transition shadow-sm">
+                      <i class="fa-solid fa-file-pdf"></i> ดาวน์โหลดแบบฟอร์ม (PDF)
+                  </a>
+              </div>`),
+            500,
+          ),
+        );
+      }
+
+      if (
+        text.includes("กู้ยืม") ||
+        text.includes("กู้เงิน") ||
+        text.includes("ขอกู้ยืมประเภทบุคคล")
+      ) {
+        return new Promise((resolve) =>
+          setTimeout(
+            () =>
+              resolve(`
+              <div class="mb-1">
+                  <p class="text-[13px] text-gray-800 font-bold mb-2">📄 แบบฟอร์มคำร้องขอกู้ยืมประเภทบุคคล</p>
+                  <p class="text-[12px] text-gray-600 mb-3 leading-relaxed"><b>การใช้งาน:</b><br>ใช้สำหรับยื่นขอกู้ยืมเงินทุนเพื่อประกอบอาชีพสำหรับผู้ที่เข้าเกณฑ์ (เช่น คนพิการ หรือผู้สูงอายุ ตามเงื่อนไขของกองทุน)</p>
+                  <a href="forms/แบบฟอร์มคำร้องขอกู้ยืมประเภทบุคคล.pdf" download target="_blank" class="inline-flex items-center gap-2 bg-red-50 text-red-600 border border-red-200 px-3.5 py-2 rounded-xl text-[12px] font-bold hover:bg-red-500 hover:text-white transition shadow-sm">
+                      <i class="fa-solid fa-file-pdf"></i> ดาวน์โหลดแบบฟอร์ม (PDF)
+                  </a>
+              </div>`),
+            500,
+          ),
+        );
+      }
+
+      if (
+        text.includes("ผู้ประสบปัญหาทางสังคม") ||
+        text.includes("ปสค.1") ||
+        text.includes("ปสค")
+      ) {
+        return new Promise((resolve) =>
+          setTimeout(
+            () =>
+              resolve(`
+              <div class="mb-1">
+                  <p class="text-[13px] text-gray-800 font-bold mb-2">📄 แบบคำขอรับความช่วยเหลือผู้ประสบปัญหาทางสังคม (ปสค.1)</p>
+                  <p class="text-[12px] text-gray-600 mb-3 leading-relaxed"><b>การใช้งาน:</b><br>ใช้สำหรับผู้ประสบปัญหาทางสังคมเพื่อยื่นขอรับการช่วยเหลือจากรัฐ เช่น เงินทุนประกอบอาชีพ, เงินสงเคราะห์, ค่าซ่อมแซมบ้าน หรือขอรับเครื่องช่วยความพิการ</p>
+                  <a href="forms/แบบคำขอรับความช่วยเหลือผู้ประสบปัญหาทางสังคมกระทรวง-พม.-แบบ-ปสค.1.pdf" download target="_blank" class="inline-flex items-center gap-2 bg-red-50 text-red-600 border border-red-200 px-3.5 py-2 rounded-xl text-[12px] font-bold hover:bg-red-500 hover:text-white transition shadow-sm">
+                      <i class="fa-solid fa-file-pdf"></i> ดาวน์โหลดแบบฟอร์ม (PDF)
+                  </a>
+              </div>`),
+            500,
+          ),
+        );
+      }
+
+      if (
+        text.includes("ซ่อมแซมบ้าน") ||
+        text.includes("ปรับปรุงที่อยู่อาศัย") ||
+        text.includes("ซ่อมบ้าน")
+      ) {
+        return new Promise((resolve) =>
+          setTimeout(
+            () =>
+              resolve(`
+              <div class="mb-1">
+                  <p class="text-[13px] text-gray-800 font-bold mb-2">📄 แบบสอบถามความต้องการและคำขอปรับปรุง/ซ่อมแซมที่อยู่อาศัยของผู้สูงอายุ</p>
+                  <p class="text-[12px] text-gray-600 mb-3 leading-relaxed"><b>ข้อควรรู้:</b><br>• ต้องระบุสภาพบ้านที่ต้องการปรับปรุง (เช่น พื้น หลังคา ห้องน้ำ ระบบไฟ)<br>• หากไม่ใช่เจ้าของบ้านหรือที่ดิน จะต้องทำ "หนังสือยินยอมในการปรับปรุง/ซ่อมแซม" แนบมาด้วย</p>
+                  <a href="forms/แบบสอบถามความต้องการปรับปรุงซ่อมแซมที่อยู่อาศัยของผู้สูงอายุ.pdf" download target="_blank" class="inline-flex items-center gap-2 bg-red-50 text-red-600 border border-red-200 px-3.5 py-2 rounded-xl text-[12px] font-bold hover:bg-red-500 hover:text-white transition shadow-sm">
+                      <i class="fa-solid fa-file-pdf"></i> ดาวน์โหลดแบบฟอร์ม (PDF)
+                  </a>
+              </div>`),
+            500,
+          ),
+        );
+      }
     }
 
-    if (
-      text.includes("ทำบัตรคนพิการ") ||
-      text.includes("บัตรประจำตัวคนพิการ") ||
-      text.includes("บัตรคนพิการ")
-    ) {
-      return new Promise((resolve) =>
-        setTimeout(
-          () =>
-            resolve(`
-            <div class="mb-1">
-                <p class="text-[13px] text-gray-800 font-bold mb-2">📄 แบบคำขอมีบัตรประจำตัวคนพิการ</p>
-                <p class="text-[12px] text-gray-600 mb-3 leading-relaxed"><b>การใช้งาน:</b><br>ใช้สำหรับยื่นขอมีบัตรครั้งแรก, บัตรเดิมหมดอายุ, ชำรุด, สูญหาย, มีการเปลี่ยนแปลงในสาระสำคัญ, หรืออายุครบ 60 ปีบริบูรณ์</p>
-                <a href="forms/แบบคำขอทำบัตร.pdf" download target="_blank" class="inline-flex items-center gap-2 bg-red-50 text-red-600 border border-red-200 px-3.5 py-2 rounded-xl text-[12px] font-bold hover:bg-red-500 hover:text-white transition shadow-sm">
-                    <i class="fa-solid fa-file-pdf"></i> ดาวน์โหลดแบบฟอร์ม (PDF)
-                </a>
-            </div>`),
-          500,
-        ),
-      );
-    }
-
-    if (
-      text.includes("เปลี่ยนผู้ดูแล") ||
-      text.includes("เปลี่ยนแปลงผู้ดูแลคนพิการ")
-    ) {
-      return new Promise((resolve) =>
-        setTimeout(
-          () =>
-            resolve(`
-            <div class="mb-1">
-                <p class="text-[13px] text-gray-800 font-bold mb-2">📄 แบบรับรองการเปลี่ยนแปลงผู้ดูแลคนพิการ</p>
-                <p class="text-[12px] text-gray-600 mb-3 leading-relaxed"><b>การใช้งาน:</b><br>ใช้สำหรับยื่นคำร้องเมื่อต้องการเปลี่ยนแปลงบุคคลที่ทำหน้าที่เป็นผู้ดูแลคนพิการในระบบ</p>
-                <a href="forms/แบบรับรองการเปลี่ยนแปลงผู้ดูแลคนพิการ.pdf" download target="_blank" class="inline-flex items-center gap-2 bg-red-50 text-red-600 border border-red-200 px-3.5 py-2 rounded-xl text-[12px] font-bold hover:bg-red-500 hover:text-white transition shadow-sm">
-                    <i class="fa-solid fa-file-pdf"></i> ดาวน์โหลดแบบฟอร์ม (PDF)
-                </a>
-            </div>`),
-          500,
-        ),
-      );
-    }
-
-    if (
-      text.includes("กู้ยืม") ||
-      text.includes("กู้เงิน") ||
-      text.includes("ขอกู้ยืมประเภทบุคคล")
-    ) {
-      return new Promise((resolve) =>
-        setTimeout(
-          () =>
-            resolve(`
-            <div class="mb-1">
-                <p class="text-[13px] text-gray-800 font-bold mb-2">📄 แบบฟอร์มคำร้องขอกู้ยืมประเภทบุคคล</p>
-                <p class="text-[12px] text-gray-600 mb-3 leading-relaxed"><b>การใช้งาน:</b><br>ใช้สำหรับยื่นขอกู้ยืมเงินทุนเพื่อประกอบอาชีพสำหรับผู้ที่เข้าเกณฑ์ (เช่น คนพิการ หรือผู้สูงอายุ ตามเงื่อนไขของกองทุน)</p>
-                <a href="forms/แบบฟอร์มคำร้องขอกู้ยืมประเภทบุคคล.pdf" download target="_blank" class="inline-flex items-center gap-2 bg-red-50 text-red-600 border border-red-200 px-3.5 py-2 rounded-xl text-[12px] font-bold hover:bg-red-500 hover:text-white transition shadow-sm">
-                    <i class="fa-solid fa-file-pdf"></i> ดาวน์โหลดแบบฟอร์ม (PDF)
-                </a>
-            </div>`),
-          500,
-        ),
-      );
-    }
-
-    if (
-      text.includes("ผู้ประสบปัญหาทางสังคม") ||
-      text.includes("ปสค.1") ||
-      text.includes("ปสค")
-    ) {
-      return new Promise((resolve) =>
-        setTimeout(
-          () =>
-            resolve(`
-            <div class="mb-1">
-                <p class="text-[13px] text-gray-800 font-bold mb-2">📄 แบบคำขอรับความช่วยเหลือผู้ประสบปัญหาทางสังคม (ปสค.1)</p>
-                <p class="text-[12px] text-gray-600 mb-3 leading-relaxed"><b>การใช้งาน:</b><br>ใช้สำหรับผู้ประสบปัญหาทางสังคมเพื่อยื่นขอรับการช่วยเหลือจากรัฐ เช่น เงินทุนประกอบอาชีพ, เงินสงเคราะห์, ค่าซ่อมแซมบ้าน หรือขอรับเครื่องช่วยความพิการ</p>
-                <a href="forms/แบบคำขอรับความช่วยเหลือผู้ประสบปัญหาทางสังคมกระทรวง-พม.-แบบ-ปสค.1.pdf" download target="_blank" class="inline-flex items-center gap-2 bg-red-50 text-red-600 border border-red-200 px-3.5 py-2 rounded-xl text-[12px] font-bold hover:bg-red-500 hover:text-white transition shadow-sm">
-                    <i class="fa-solid fa-file-pdf"></i> ดาวน์โหลดแบบฟอร์ม (PDF)
-                </a>
-            </div>`),
-          500,
-        ),
-      );
-    }
-
-    if (
-      text.includes("ซ่อมแซมบ้าน") ||
-      text.includes("ปรับปรุงที่อยู่อาศัย") ||
-      text.includes("ซ่อมบ้าน")
-    ) {
-      return new Promise((resolve) =>
-        setTimeout(
-          () =>
-            resolve(`
-            <div class="mb-1">
-                <p class="text-[13px] text-gray-800 font-bold mb-2">📄 แบบสอบถามความต้องการและคำขอปรับปรุง/ซ่อมแซมที่อยู่อาศัยของผู้สูงอายุ</p>
-                <p class="text-[12px] text-gray-600 mb-3 leading-relaxed"><b>ข้อควรรู้:</b><br>• ต้องระบุสภาพบ้านที่ต้องการปรับปรุง (เช่น พื้น หลังคา ห้องน้ำ ระบบไฟ)<br>• หากไม่ใช่เจ้าของบ้านหรือที่ดิน จะต้องทำ "หนังสือยินยอมในการปรับปรุง/ซ่อมแซม" แนบมาด้วย</p>
-                <a href="forms/แบบสอบถามความต้องการปรับปรุงซ่อมแซมที่อยู่อาศัยของผู้สูงอายุ.pdf" download target="_blank" class="inline-flex items-center gap-2 bg-red-50 text-red-600 border border-red-200 px-3.5 py-2 rounded-xl text-[12px] font-bold hover:bg-red-500 hover:text-white transition shadow-sm">
-                    <i class="fa-solid fa-file-pdf"></i> ดาวน์โหลดแบบฟอร์ม (PDF)
-                </a>
-            </div>`),
-          500,
-        ),
-      );
-    }
-
-    // 🔴 แก้ไขแล้ว: เปลี่ยนจากการเช็คคำเป๊ะๆ เป็นการดักจับ Keyword (รับรองว่าเข้า UI สวยๆ ทุกหมวดแน่นอน)
+    // 2. ระบบตอบกลับด้วยการแนะนำตัวและสรุปหัวข้อกฎหมาย
     let isLawCategory = false;
     let matchedCategory = "";
     let targetKnowledge = "";
@@ -333,12 +356,10 @@ document.addEventListener("DOMContentLoaded", () => {
           : "";
     }
 
-    // 2. ระบบตอบกลับด้วยการแนะนำตัวและสรุปหัวข้อกฎหมาย (ถ้าตรงเงื่อนไข Keyword ด้านบน)
     if (isLawCategory) {
       return new Promise((resolve) => {
         setTimeout(() => {
           if (targetKnowledge) {
-            // ดึงเฉพาะหัวข้อหลักที่อยู่ในเครื่องหมาย ** ... **
             let headings = [];
             let regex = /\*\*(.*?)\*\*/g;
             let match;
@@ -349,7 +370,6 @@ document.addEventListener("DOMContentLoaded", () => {
               }
             }
 
-            // สร้าง List สไตล์แบบในรูปภาพที่ส่งมา
             let listHtml = headings
               .map(
                 (h) =>
@@ -362,7 +382,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 '<li class="mb-2.5 text-gray-700 flex items-start gap-2.5"><i class="fa-solid fa-gavel text-primary mt-1 text-[12px]"></i> <span>ข้อมูลพระราชบัญญัติที่เกี่ยวข้อง</span></li>';
             }
 
-            // HTML ประกอบหน้าจอ AI
             let responseHtml = `
             <div class="mb-4">
                 <b class="text-gray-800 text-[14px] xs:text-[15px]">สวัสดีค่ะ ยินดีต้อนรับเข้าสู่${matchedCategory} ⚖️</b>
@@ -386,7 +405,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // 3. ระบบส่งข้อมูลให้ AI วิเคราะห์ และ โหมดค้นหาสำรอง (กรณีผู้ใช้ถามเจาะจงเข้ามา)
+    // 3. ระบบส่งข้อมูลให้ AI วิเคราะห์ (กรณีผู้ใช้พิมพ์ถามคำถามเข้ามา)
     try {
       let allLaws = "";
       if (typeof LAW_CHILD_KNOWLEDGE !== "undefined")
@@ -427,6 +446,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (error) {
       console.error("Network Error:", error);
 
+      // โหมดออฟไลน์ ค้นหาคำจากกฎหมายทั้ง 4 หมวด (ใช้เมื่อเน็ตหลุด/API พัง)
       let allLaws = "";
       if (typeof LAW_CHILD_KNOWLEDGE !== "undefined")
         allLaws += LAW_CHILD_KNOWLEDGE + "\n";
