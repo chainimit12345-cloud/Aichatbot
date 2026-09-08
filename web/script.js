@@ -143,7 +143,6 @@ document.addEventListener("DOMContentLoaded", () => {
   async function fetchAIResponse(userText) {
     const text = userText.trim();
 
-    // 1. ระบบตอบกลับรวดเร็วสำหรับข้อมูลเบื้องต้น
     if (
       text.includes("ติดต่อ") ||
       text.includes("เบอร์") ||
@@ -294,7 +293,7 @@ document.addEventListener("DOMContentLoaded", () => {
       );
     }
 
-    // 2. ระบบตอบกลับด้วยการแนะนำตัวและสรุปหัวข้อกฎหมาย
+    // --- ส่วนแสดงข้อความกฎหมายแบบสรุปหัวข้อ บนหน้าเว็บ (อัปเดตตามแบบฟอร์มล่าสุด) ---
     if (
       [
         "หมวดกฎหมายเด็กและเยาวชน",
@@ -328,6 +327,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 : "";
 
           if (targetKnowledge) {
+            // ดึงเฉพาะหัวข้อหลักที่อยู่ในเครื่องหมาย ** ... **
             let headings = [];
             let regex = /\*\*(.*?)\*\*/g;
             let match;
@@ -338,28 +338,31 @@ document.addEventListener("DOMContentLoaded", () => {
               }
             }
 
+            // สร้าง List สไตล์แบบในรูปภาพที่ส่งมา
             let listHtml = headings
               .map(
                 (h) =>
-                  `<li class="mb-1.5 text-gray-700 flex items-start gap-2"><i class="fa-solid fa-gavel text-primary mt-1 text-[10px]"></i> <span>${h}</span></li>`,
+                  `<li class="mb-2.5 text-gray-700 flex items-start gap-2.5"><i class="fa-solid fa-gavel text-primary mt-1 text-[12px]"></i> <span class="leading-snug">${h}</span></li>`,
               )
               .join("");
 
             if (headings.length === 0) {
               listHtml =
-                '<li class="mb-1.5 text-gray-700 flex items-start gap-2"><i class="fa-solid fa-gavel text-primary mt-1 text-[10px]"></i> <span>ข้อมูลพระราชบัญญัติที่เกี่ยวข้อง</span></li>';
+                '<li class="mb-2.5 text-gray-700 flex items-start gap-2.5"><i class="fa-solid fa-gavel text-primary mt-1 text-[12px]"></i> <span>ข้อมูลพระราชบัญญัติที่เกี่ยวข้อง</span></li>';
             }
 
+            // HTML ประกอบหน้าจอ AI
             let responseHtml = `
-            <div class="mb-3 text-[13px] xs:text-[14px] leading-relaxed">
-                <b>สวัสดีค่ะ ยินดีต้อนรับเข้าสู่${text} ⚖️</b><br>
-                <p class="mt-1.5 text-gray-600">ในหมวดนี้มีข้อมูลพระราชบัญญัติหลักๆ ดังนี้ค่ะ:</p>
+            <div class="mb-4">
+                <b class="text-gray-800 text-[14px] xs:text-[15px]">สวัสดีค่ะ ยินดีต้อนรับเข้าสู่${text} ⚖️</b>
+                <p class="mt-2 text-[13px] xs:text-[14px] text-gray-600">ในหมวดนี้มีข้อมูลพระราชบัญญัติหลักๆ ดังนี้ค่ะ:</p>
             </div>
-            <ul class="text-[12px] xs:text-[13px] pl-1 mb-4">
+            <ul class="text-[12.5px] xs:text-[13.5px] pl-1 mb-5">
                 ${listHtml}
             </ul>
-            <div class="bg-blue-50 p-2.5 rounded-xl border border-blue-100 text-[11px] xs:text-[12px] text-blue-700 shadow-sm mt-2">
-                <i class="fa-solid fa-magnifying-glass"></i> <b>พิมพ์ชื่อ พ.ร.บ. หรือ เลขมาตรา</b> ที่คุณต้องการทราบรายละเอียดเจาะจงเข้ามาได้เลยค่ะ
+            <div class="bg-blue-50/70 p-3 rounded-xl border border-blue-100 text-[12px] xs:text-[13px] text-blue-600 mt-2 flex items-start gap-2.5">
+                <i class="fa-solid fa-magnifying-glass text-blue-500 mt-0.5 text-[14px]"></i> 
+                <span><span class="font-bold">พิมพ์ชื่อ พ.ร.บ. หรือ เลขมาตรา</span> ที่คุณต้องการทราบรายละเอียดเจาะจงเข้ามาได้เลยค่ะ</span>
             </div>
             `;
             return resolve(responseHtml);
@@ -372,8 +375,8 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // 3. ระบบส่งข้อมูลให้ AI วิเคราะห์ และ โหมดค้นหาสำรอง
     try {
+      // 🔴 รวมกฎหมายทั้ง 4 หมวด เพื่อส่งให้ AI ประมวลผล
       let allLaws = "";
       if (typeof LAW_CHILD_KNOWLEDGE !== "undefined")
         allLaws += LAW_CHILD_KNOWLEDGE + "\n";
@@ -413,6 +416,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (error) {
       console.error("Network Error:", error);
 
+      // 🔴 โหมดออฟไลน์ ค้นหาคำจากกฎหมายทั้ง 4 หมวด
       let allLaws = "";
       if (typeof LAW_CHILD_KNOWLEDGE !== "undefined")
         allLaws += LAW_CHILD_KNOWLEDGE + "\n";
