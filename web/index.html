@@ -34,7 +34,7 @@
     />
     <!-- Google Fonts (Thai Font) -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;800&display=swap"
       rel="stylesheet"
     />
     <style>
@@ -43,11 +43,28 @@
       ::-webkit-scrollbar-track { background: transparent; }
       ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
       ::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+      
+      /* อนิเมชั่นพื้นฐาน */
       @keyframes fadeIn {
           from { opacity: 0; transform: translateY(10px); }
           to { opacity: 1; transform: translateY(0); }
       }
-      .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+      .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+      
+      /* ลูกเล่นหุ่นยนต์ลอยเบาๆ */
+      @keyframes float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-6px); }
+      }
+      .animate-float { animation: float 3s ease-in-out infinite; }
+      
+      /* ลูกเล่นข้อความไล่สี */
+      .bg-gradient-text {
+          background: linear-gradient(135deg, #7B61FF, #a855f7);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+      }
+      
       details > summary { list-style: none; }
       details > summary::-webkit-details-marker { display: none; }
     </style>
@@ -58,7 +75,7 @@
       class="fixed inset-0 bg-gray-900/40 z-40 hidden backdrop-blur-sm transition-opacity lg:hidden"
     ></div>
 
-    <!-- 🔴 ปรับ w-full ให้เมนูยืดเต็มจอบนมือถือตรงนี้ -->
+    <!-- เมนูด้านข้าง (Sidebar) -->
     <aside
       id="sidebar"
       class="fixed lg:relative inset-y-0 left-0 z-50 w-full lg:w-[300px] flex-shrink-0 bg-white border-r border-gray-100 flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none overflow-y-auto"
@@ -144,7 +161,6 @@
       >
         <div class="flex items-center gap-3">
           
-          <!-- ปุ่ม 3 ขีดที่ปรับปรุงให้เต็มและใหญ่ขึ้น -->
           <button
             id="hamburger-btn"
             class="w-11 h-11 xs:w-12 xs:h-12 flex lg:hidden flex-col justify-center items-center gap-[5px] text-gray-600 hover:text-primary hover:bg-gray-100 rounded-xl transition mr-1 -ml-2 xs:ml-0"
@@ -178,31 +194,41 @@
         id="input-area"
         class="flex-1 flex flex-col justify-center px-4 xs:px-6 md:px-8 w-full max-w-4xl mx-auto transition-all duration-500 ease-in-out h-full"
       >
+        
+        <!-- ส่วนต้อนรับ (Welcome Text) อัปเดตลูกเล่นใหม่ -->
         <div
           id="welcome-text"
-          class="flex flex-col items-center justify-center mb-6 xs:mb-10 w-full animate-fade-in mt-12 xs:mt-0"
+          class="flex flex-col items-center justify-center mb-6 xs:mb-10 w-full mt-12 xs:mt-0"
         >
+          <!-- ไอคอนหุ่นยนต์ + เอฟเฟกต์ลอย (animate-float) -->
           <div
-            class="w-16 h-16 xs:w-20 xs:h-20 bg-primary/10 rounded-full flex items-center justify-center text-primary text-3xl xs:text-4xl mb-4 xs:mb-6 shadow-inner"
+            class="w-16 h-16 xs:w-20 xs:h-20 bg-primary/10 rounded-full flex items-center justify-center text-primary text-3xl xs:text-4xl mb-4 xs:mb-6 shadow-inner animate-float hover:scale-110 transition-transform duration-300 cursor-default"
           >
             <i class="fa-solid fa-robot"></i>
           </div>
+          
+          <!-- ข้อความทักทาย + เอฟเฟกต์ไล่สี (bg-gradient-text) -->
           <h2
-            class="text-xl xs:text-2xl md:text-3xl font-bold text-gray-800 mb-2 xs:mb-3 flex items-center gap-2"
+            class="text-xl xs:text-2xl md:text-3xl font-extrabold mb-2 xs:mb-3 flex items-center gap-2 animate-fade-in bg-gradient-text opacity-0"
+            style="animation-fill-mode: forwards;"
           >
             สวัสดีค่ะ
           </h2>
+          
+          <!-- คำอธิบายค่อยๆ ปรากฏ (delay 0.1s) -->
           <p
-            class="text-gray-500 text-[12px] xs:text-sm md:text-base text-center px-2"
+            class="text-gray-500 text-[12px] xs:text-sm md:text-base text-center px-2 animate-fade-in opacity-0"
+            style="animation-delay: 0.1s; animation-fill-mode: forwards;"
           >
-            AI ผู้ช่วยสิทธิสวัสดิการ
-            สำนักงานพัฒนาสังคมและความมั่นคงของมนุษย์จังหวัดสกลนคร<br
+            AI ผู้ช่วยสิทธิสวัสดิการ สำนักงานพัฒนาสังคมและความมั่นคงของมนุษย์จังหวัดสกลนคร<br
               class="hidden xs:block"
             />วันนี้ให้ฉันช่วยอะไรดีคะ?
           </p>
 
+          <!-- ปุ่มแนะนำค่อยๆ ปรากฏ (delay 0.2s) + เอฟเฟกต์เด้งและเรืองแสงตอนชี้ -->
           <div
-            class="flex flex-wrap justify-center gap-2 mt-6 xs:mt-8 max-w-2xl px-2"
+            class="flex flex-wrap justify-center gap-2 mt-6 xs:mt-8 max-w-2xl px-2 animate-fade-in opacity-0"
+            style="animation-delay: 0.2s; animation-fill-mode: forwards;"
           >
             <button
               onclick="
@@ -210,7 +236,7 @@
                   'ขอช่องทางการติดต่อเจ้าหน้าที่หน่อยครับ';
                 document.getElementById('send-btn').click();
               "
-              class="bg-white border border-gray-200 py-2 px-3 xs:py-2.5 xs:px-4 rounded-xl text-[12px] xs:text-sm text-gray-600 font-medium hover:border-primary hover:text-primary transition shadow-sm flex items-center gap-1.5 xs:gap-2"
+              class="bg-white border border-gray-200 py-2 px-3 xs:py-2.5 xs:px-4 rounded-xl text-[12px] xs:text-sm text-gray-600 font-medium hover:border-primary hover:text-primary hover:-translate-y-1 hover:shadow-md hover:shadow-primary/20 transition-all duration-300 flex items-center gap-1.5 xs:gap-2"
             >
               <i class="fa-solid fa-headset text-primary"></i> ติดต่อเจ้าหน้าที่
             </button>
@@ -220,7 +246,7 @@
                   'ขอแบบฟอร์มทำบัตรคนพิการหน่อยครับ';
                 document.getElementById('send-btn').click();
               "
-              class="bg-white border border-gray-200 py-2 px-3 xs:py-2.5 xs:px-4 rounded-xl text-[12px] xs:text-sm text-gray-600 font-medium hover:border-primary hover:text-primary transition shadow-sm flex items-center gap-1.5 xs:gap-2"
+              class="bg-white border border-gray-200 py-2 px-3 xs:py-2.5 xs:px-4 rounded-xl text-[12px] xs:text-sm text-gray-600 font-medium hover:border-primary hover:text-primary hover:-translate-y-1 hover:shadow-md hover:shadow-primary/20 transition-all duration-300 flex items-center gap-1.5 xs:gap-2"
             >
               <i class="fa-solid fa-file-pdf text-primary"></i> ฟอร์มบัตรคนพิการ
             </button>
@@ -230,7 +256,7 @@
                   'ขอแบบฟอร์มซ่อมแซมบ้านผู้สูงอายุหน่อยครับ';
                 document.getElementById('send-btn').click();
               "
-              class="bg-white border border-gray-200 py-2 px-3 xs:py-2.5 xs:px-4 rounded-xl text-[12px] xs:text-sm text-gray-600 font-medium hover:border-primary hover:text-primary transition shadow-sm flex items-center gap-1.5 xs:gap-2"
+              class="bg-white border border-gray-200 py-2 px-3 xs:py-2.5 xs:px-4 rounded-xl text-[12px] xs:text-sm text-gray-600 font-medium hover:border-primary hover:text-primary hover:-translate-y-1 hover:shadow-md hover:shadow-primary/20 transition-all duration-300 flex items-center gap-1.5 xs:gap-2"
             >
               <i class="fa-solid fa-house-chimney text-primary"></i>
               ซ่อมบ้านผู้สูงอายุ
@@ -279,7 +305,7 @@
             </div>
             <button
               id="send-btn"
-              class="w-8 h-8 xs:w-10 xs:h-10 bg-primary hover:bg-primary-hover text-white rounded-full flex items-center justify-center shadow-md transition"
+              class="w-8 h-8 xs:w-10 xs:h-10 bg-primary hover:bg-primary-hover text-white rounded-full flex items-center justify-center shadow-md transition hover:scale-105"
             >
               <i
                 class="fa-solid fa-paper-plane text-[12px] xs:text-sm translate-x-[-1px]"
