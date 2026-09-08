@@ -5,10 +5,10 @@ const APP_DATA = {
             { label: "สอบถามเรื่องเด็กแรกเกิด", number: "042-712-454", link: "tel:042712454" }, 
             { label: "สอบถามเรื่องคนพิการ", number: "042-711-439", link: "tel:042711439" }
         ],
-        email: "sakonnakhonpmj@gmail.com",
-        emailLink: "mailto:sakonnakhonpmj@gmail.com",
-        address: "ศาลากลางจังหวัดหลังใหม่ ถ.ศูนย์ราชการ ต.ธาตุเชิงชุม อ.เมืองสกลนคร จ.สกลนคร 47000",
-        mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3826.969871142586!2d104.1481515!3d17.1610488!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x313cff7ab09c4883%3A0xb35a9071c356a5c1!2z4Lio4Liy4Lil4Liy4LiB4Lil4Liy4LiH4LiI4Lix4LiH4Lir4Lin4Lix4LiU4Liq4LiB4Lil4LiZ4LiE4Lij!5e0!3m2!1sth!2sth!4v1700000000000!5m2!1sth!2sth" 
+        email: "sakonnakhon@m-society.go.th",
+        emailLink: "mailto:sakonnakhon@m-society.go.th",
+        address: "ศาลากลางจังหวัดสกลนคร(หลังใหม่) ชั้น 1, ถนนศูนย์ราชการ, ตำบลธาตุเชิงชุม อำเภอเมือง ธาตุเชิงชุม อำเภอเมืองสกลนคร สกลนคร 47000",
+        mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d665.7339048402796!2d104.13395444345299!3d17.1543350805302!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x313c8cc9532e83b5%3A0xe3367aa5322d79f7!2z4Liq4Liz4LiZ4Lix4LiB4LiH4Liy4LiZ4Lie4Lix4LiS4LiZ4Liy4Liq4Lix4LiH4LiE4Lih4LmB4Lil4Liw4LiE4Lin4Liy4Lih4Lih4Lix4LmI4LiZ4LiE4LiH4LiC4Lit4LiH4Lih4LiZ4Li44Lip4Lii4LmM4LiI4Lix4LiH4Lir4Lin4Lix4LiU4Liq4LiB4Lil4LiZ4LiE4Lij!5e1!3m2!1sth!2sth!4v1788848271333!5m2!1sth!2sth" 
     },
     departments: [
         {
