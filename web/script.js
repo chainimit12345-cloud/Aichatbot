@@ -153,7 +153,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return new Promise((resolve) => {
         setTimeout(() => {
           let contactReply =
-            '<p class="text-[12px] xs:text-[13px] text-gray-700 mb-2">คุณสามารถติดต่อเจ้าหน้าที่ พมจ.สกลนคร ตามแผนกที่ต้องการได้เลยค่ะ:</p>';
+            '<p class="text-[12px] xs:text-[13px] text-gray-700 mb-2">คุณสามารถติดต่อเจ้าหน้าที่ พมจ.สกลนคร ตามกลุ่มงานที่ต้องการได้เลยค่ะ</p>';
           APP_DATA.contact.phones.forEach((phone) => {
             contactReply += `<div class="flex items-center gap-2 mb-1"><i class="fa-solid fa-phone text-primary w-4 text-center"></i> <span class="font-bold text-gray-800 text-[12px] xs:text-[13px]">${phone.label}:</span> <a href="${phone.link}" class="text-blue-500 hover:underline text-[12px] xs:text-[13px]">${phone.number}</a></div>`;
           });
