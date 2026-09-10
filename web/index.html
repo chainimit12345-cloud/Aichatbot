@@ -214,22 +214,19 @@
             ></span>
           </button>
 
-          <div>
-            <h2
-              class="text-base xs:text-lg md:text-xl font-bold flex items-center gap-2"
-            >
+          <div class="flex items-center gap-2 xs:gap-3">
+            <h2 class="text-base xs:text-lg md:text-xl font-bold text-gray-800">
               AI พมจ.สกลนคร
             </h2>
-            <div
-              class="flex items-center gap-1.5 mt-0.5 text-[10px] xs:text-xs text-gray-500"
-            >
-              <div
-                class="w-1.5 h-1.5 xs:w-2 xs:h-2 bg-green-500 rounded-full"
-              ></div>
-              ออนไลน์
+            <!-- ลูกเล่นป้ายสถานะออนไลน์แบบกะพริบ -->
+            <div class="flex items-center gap-1.5 bg-green-50 px-2 py-0.5 xs:px-2.5 xs:py-1 rounded-full border border-green-200/60 shadow-sm mt-0.5">
+              <div class="relative flex h-1.5 w-1.5 xs:h-2 xs:w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-1.5 w-1.5 xs:h-2 xs:w-2 bg-green-500"></span>
+              </div>
+              <span class="text-[9px] xs:text-[10px] font-semibold text-green-600 tracking-wide">ออนไลน์</span>
             </div>
           </div>
-        </div>
       </header>
 
       <div id="chat-container" class="hidden"></div>
