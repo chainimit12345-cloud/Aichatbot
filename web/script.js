@@ -26,23 +26,25 @@ document.addEventListener("DOMContentLoaded", () => {
                 ${phonesHTML}
                 <div class="mt-3">
                     <a href="${APP_DATA.contact.emailLink}" class="flex items-center justify-between group cursor-pointer block hover:bg-white p-1.5 -m-1.5 rounded-lg transition mb-2">
-                        <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-3 w-full">
                             <div class="w-6 h-6 rounded-full bg-white flex items-center justify-center text-primary shadow-sm flex-shrink-0 group-hover:bg-primary group-hover:text-white transition">
                                 <i class="fa-solid fa-envelope text-[10px]"></i>
                             </div>
-                            <div>
+                            <!-- 🔴 แก้ไขอีเมล: ลบการตัดคำออก และปล่อยให้หักบรรทัดลงมาถ้ายาวเกิน -->
+                            <div class="flex-1 min-w-0 pr-2">
                                 <p class="text-[9px] text-gray-400 font-medium leading-none mb-0.5">อีเมล</p>
-                                <p class="text-[11px] xs:text-[12px] text-gray-700 font-bold truncate w-[100px] xs:w-[110px] leading-none">${APP_DATA.contact.email}</p>
+                                <p class="text-[11px] xs:text-[12px] text-gray-700 font-bold leading-tight break-all">${APP_DATA.contact.email}</p>
                             </div>
                         </div>
-                        <span class="text-[9px] font-medium text-white bg-blue-500 px-2 py-1 rounded shadow-sm opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all duration-300 whitespace-nowrap">แตะส่งอีเมล</span>
+                        <span class="text-[9px] font-medium text-white bg-blue-500 px-2 py-1 rounded shadow-sm opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all duration-300 whitespace-nowrap absolute right-2">แตะส่ง</span>
                     </a>
                 </div>
                 <div class="flex items-start gap-3 pt-2 mt-2 border-t border-primary/10">
                     <div class="w-6 h-6 rounded-full bg-white flex items-center justify-center text-primary shadow-sm flex-shrink-0 mt-0.5">
                         <i class="fa-solid fa-location-dot text-[10px]"></i>
                     </div>
-                    <p class="text-[10px] xs:text-[11px] text-gray-600 leading-relaxed">${APP_DATA.contact.address}</p>
+                    <!-- 🔴 แก้ไขที่อยู่: ใส่ break-keep เพื่อห้ามตัดกลางคำภาษาไทย -->
+                    <p class="text-[10px] xs:text-[11px] text-gray-600 leading-relaxed break-keep">${APP_DATA.contact.address}</p>
                 </div>
             </div>
         </div>`;
