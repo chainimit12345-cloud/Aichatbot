@@ -384,8 +384,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
             let responseHtml = `
             <div class="mb-4">
-                <b class="text-gray-800 text-[14px] xs:text-[15px]">สวัสดีค่ะ ยินดีต้อนรับเข้าสู่${matchedCategory} ⚖️</b>
-                <p class="mt-2 text-[13px] xs:text-[14px] text-gray-600">ในหมวดนี้มีข้อมูลพระราชบัญญัติหลักๆ ดังนี้ค่ะ:</p>
+                <b class="text-gray-800 text-[14px] xs:text-[15px]">สวัสดีค่ะ ยินดีต้อนรับเข้าสู่${matchedCategory} </b>
+                <p class="mt-2 text-[13px] xs:text-[14px] text-gray-600">ในหมวดนี้มีข้อมูลพระราชบัญญัติหลักๆ ดังนี้ค่ะ</p>
             </div>
             <ul class="text-[12.5px] xs:text-[13.5px] pl-1 mb-5">
                 ${listHtml}
