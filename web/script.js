@@ -91,8 +91,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let lawsHTML = "";
     APP_DATA.laws.forEach((law) => {
+      // 🔴 เพิ่มคำสั่งปิด Sidebar ตรงนี้ (if window.innerWidth < 1024)
       lawsHTML += `
-            <button onclick="document.getElementById('chat-input').value='${law.prompt}'; document.getElementById('send-btn').click();" class="w-full flex items-center justify-between p-3 bg-gray-50 border border-gray-100 rounded-xl hover:bg-white hover:border-primary/30 hover:shadow-sm transition group text-left">
+            <button onclick="document.getElementById('chat-input').value='${law.prompt}'; document.getElementById('send-btn').click(); if(window.innerWidth < 1024) document.getElementById('close-sidebar-btn').click();" class="w-full flex items-center justify-between p-3 bg-gray-50 border border-gray-100 rounded-xl hover:bg-white hover:border-primary/30 hover:shadow-sm transition group text-left">
                 <span class="text-[11px] xs:text-[12px] font-semibold text-gray-700 group-hover:text-primary transition line-clamp-1">${law.text}</span>
                 <i class="fa-regular fa-paper-plane text-gray-300 text-[10px] group-hover:text-primary flex-shrink-0"></i>
             </button>`;
@@ -406,23 +407,61 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 3. ระบบส่งข้อมูลให้ AI วิเคราะห์
     try {
-      let allLaws = "";
-      if (typeof LAW_CHILD_KNOWLEDGE !== "undefined")
-        allLaws += LAW_CHILD_KNOWLEDGE + "\n";
-      if (typeof LAW_WOMEN_FAMILY_KNOWLEDGE !== "undefined")
-        allLaws += LAW_WOMEN_FAMILY_KNOWLEDGE + "\n";
-      if (typeof LAW_DISABLED_KNOWLEDGE !== "undefined")
-        allLaws += LAW_DISABLED_KNOWLEDGE + "\n";
-      if (typeof LAW_ELDERLY_KNOWLEDGE !== "undefined")
-        allLaws += LAW_ELDERLY_KNOWLEDGE + "\n";
+      let relevantLaws = "";
+      const userMsg = text.toLowerCase();
+
+      // ดึงเฉพาะกฎหมายที่ตรงกับเจตนาของผู้ใช้ เพื่อประหยัด Token ป้องกันระบบล่ม
+      if (
+        /(เด็ก|เยาวชน|ลูก|บุตร|แรกเกิด|ทารก|ครรภ์|นักเรียน|โรงเรียน)/.test(
+          userMsg,
+        )
+      ) {
+        if (typeof LAW_CHILD_KNOWLEDGE !== "undefined")
+          relevantLaws += LAW_CHILD_KNOWLEDGE + "\n";
+      }
+      if (
+        /(สตรี|หญิง|ครอบครัว|ภรรยา|สามี|หย่า|สมรส|รุนแรง|ข่มขืน|ทำร้าย)/.test(
+          userMsg,
+        )
+      ) {
+        if (typeof LAW_WOMEN_FAMILY_KNOWLEDGE !== "undefined")
+          relevantLaws += LAW_WOMEN_FAMILY_KNOWLEDGE + "\n";
+      }
+      if (
+        /(พิการ|ทุพพลภาพ|ผู้ดูแล|ตาบอด|หูหนวก|วีลแชร์|แขนขาด|ขาขาด|ออทิสติก)/.test(
+          userMsg,
+        )
+      ) {
+        if (typeof LAW_DISABLED_KNOWLEDGE !== "undefined")
+          relevantLaws += LAW_DISABLED_KNOWLEDGE + "\n";
+      }
+      if (
+        /(สูงอายุ|คนแก่|ชรา|ศพ|เสียชีวิต|ตาย|อายุ 60|บำนาญ|เบี้ยยังชีพ)/.test(
+          userMsg,
+        )
+      ) {
+        if (typeof LAW_ELDERLY_KNOWLEDGE !== "undefined")
+          relevantLaws += LAW_ELDERLY_KNOWLEDGE + "\n";
+      }
+
+      // ถ้าดึงคำจากข้างบนไม่ได้เลย แต่เป็นคำถามเกี่ยวกับกฎหมายกว้างๆ ค่อยแนบทั้งหมด
+      if (
+        relevantLaws === "" &&
+        /(กฎหมาย|สิทธิ|สวัสดิการ|ช่วยเหลือ|พ.ร.บ|เงิน)/.test(userMsg)
+      ) {
+        if (typeof LAW_CHILD_KNOWLEDGE !== "undefined")
+          relevantLaws += LAW_CHILD_KNOWLEDGE + "\n";
+        if (typeof LAW_WOMEN_FAMILY_KNOWLEDGE !== "undefined")
+          relevantLaws += LAW_WOMEN_FAMILY_KNOWLEDGE + "\n";
+        if (typeof LAW_DISABLED_KNOWLEDGE !== "undefined")
+          relevantLaws += LAW_DISABLED_KNOWLEDGE + "\n";
+        if (typeof LAW_ELDERLY_KNOWLEDGE !== "undefined")
+          relevantLaws += LAW_ELDERLY_KNOWLEDGE + "\n";
+      }
 
       const systemPrompt = `
             ${typeof AI_PERSONA !== "undefined" ? AI_PERSONA : "คุณคือ AI ผู้ช่วยตอบคำถามทั่วไป"}
-            
-            คลังข้อมูลกฎหมายสำหรับอ้างอิง (ห้ามแต่งเนื้อหากฎหมายเองเด็ดขาด):
-            """
-            ${allLaws || "ไม่มีข้อมูลกฎหมาย"}
-            """
+            ${relevantLaws !== "" ? `\nคลังข้อมูลกฎหมายสำหรับอ้างอิง (ห้ามแต่งเนื้อหาเอง):\n"""\n${relevantLaws}\n"""` : ""}
             `;
 
       const response = await fetch("/api/chat", {
@@ -485,7 +524,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
 
-      return `ขออภัยค่ะ ตอนนี้ฉันไม่สามารถวิเคราะห์ข้อมูลด้วย AI ได้ (การเชื่อมต่อ API ขัดข้อง) และไม่พบคำว่า <b>"${text}"</b> ในฐานข้อมูลเอกสารค่ะ`;
+      return `ขออภัยค่ะ ตอนนี้ระบบไม่สามารถวิเคราะห์ข้อมูลด้วย AI ได้ (ข้อขัดข้องทางการเชื่อมต่อ) และไม่พบข้อมูลคำว่า <b>"${text}"</b> ในระบบค่ะ`;
     }
   }
 
