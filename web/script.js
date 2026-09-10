@@ -542,8 +542,9 @@ document.addEventListener("DOMContentLoaded", () => {
         isFirstMessage = false;
         welcomeText.style.display = "none";
 
+        // 🔴 แก้ไขระยะขอบล่างตรงนี้ จาก pb-[320px] เปลี่ยนเป็น pb-[120px] md:pb-[140px]
         chatContainer.className =
-          "w-full h-full absolute inset-0 z-0 overflow-y-auto px-4 xs:px-6 md:px-8 pt-[80px] xs:pt-[90px] md:pt-[100px] pb-[320px] flex flex-col gap-4 xs:gap-6 animate-fade-in";
+          "w-full h-full absolute inset-0 z-0 overflow-y-auto px-4 xs:px-6 md:px-8 pt-[80px] xs:pt-[90px] md:pt-[100px] pb-[120px] md:pb-[140px] flex flex-col gap-4 xs:gap-6 animate-fade-in";
         inputArea.className =
           "absolute bottom-0 left-0 right-0 px-4 xs:px-6 md:px-8 pb-4 xs:pb-6 bg-gradient-to-t from-bg-app via-bg-app to-transparent pt-20 pointer-events-none z-10";
       }
