@@ -24,26 +24,14 @@ module.exports = async function handler(req, res) {
     const primaryKeysStr = process.env.GEMINI_API_KEYS || "";
     const fallbackKeyStr = process.env.GEMINI_API_KEY || "";
 
-    // 2. จัดเรียงคิว โดยให้ GEMINI_API_KEYS อยู่คิวแรกเสมอ
+    // 2. จัดเรียงคิว
     let orderedKeys = [];
-
     if (primaryKeysStr) {
-      const primaryKeys = primaryKeysStr
-        .split(",")
-        .map((k) => k.trim())
-        .filter((k) => k);
-      orderedKeys = orderedKeys.concat(primaryKeys);
+      orderedKeys = orderedKeys.concat(primaryKeysStr.split(",").map((k) => k.trim()).filter((k) => k));
     }
-
     if (fallbackKeyStr) {
-      const fallbackKeys = fallbackKeyStr
-        .split(",")
-        .map((k) => k.trim())
-        .filter((k) => k);
-      orderedKeys = orderedKeys.concat(fallbackKeys);
+      orderedKeys = orderedKeys.concat(fallbackKeyStr.split(",").map((k) => k.trim()).filter((k) => k));
     }
-
-    // กรอง Key ที่ซ้ำกันออก (ป้องกันกรณีใส่ Key เดียวกันไว้ทั้ง 2 ตัวแปร)
     orderedKeys = [...new Set(orderedKeys)];
 
     if (orderedKeys.length === 0) {
@@ -52,14 +40,15 @@ module.exports = async function handler(req, res) {
 
     let lastError = null;
 
-    // 3. วนลูปใช้งาน API Key ตามลำดับเป๊ะๆ (ไม่มีการสุ่มแล้ว)
+    // 3. วนลูปใช้งาน API Key ตามลำดับ
     for (const apiKey of orderedKeys) {
       try {
         const ai = new GoogleGenAI({ apiKey: apiKey });
 
-        const interaction = await ai.interactions.create({
+        // 🔴 ใช้โมเดล gemini-3.8-flash ตามเดิม พร้อมโครงสร้างคำสั่งที่ถูกต้อง
+        const response = await ai.models.generateContent({
           model: "gemini-3.8-flash",
-          input: userText,
+          contents: userText,
           config: {
             systemInstruction: systemPrompt,
             temperature: 0.4,
@@ -68,7 +57,7 @@ module.exports = async function handler(req, res) {
 
         return res
           .status(200)
-          .json({ reply: interaction.output_text.replace(/\n/g, "<br>") });
+          .json({ reply: response.text.replace(/\n/g, "<br>") });
       } catch (error) {
         console.warn(
           `[Warning] API Key failed, switching to next... Error: ${error.message}`,
