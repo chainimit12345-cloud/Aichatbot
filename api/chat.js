@@ -24,64 +24,40 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: "userText is required" });
     }
 
-    // 2. จัดลำดับคิว API Key (เอา GEMINI_API_KEYS เป็นคิวที่ 1 เสมอ)
-    const primaryKeysStr = process.env.GEMINI_API_KEYS || "";
-    const fallbackKeyStr = process.env.GEMINI_API_KEY || "";
+    // 2. ดึง API Key มาใช้งานแค่ 1 ตัวเท่านั้น (ดึงตัวแรกสุดที่เจอมาใช้เลย)
+    let apiKey =
+      process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEYS || "";
+    apiKey = apiKey.split(",")[0].trim(); // ป้องกันกรณีเผลอใส่ลูกน้ำติดมา จะได้เอาแค่ตัวแรก
 
-    const parseKeys = (str) =>
-      str
-        .split(",")
-        .map((k) => k.trim())
-        .filter(Boolean);
-
-    // เรียงคิวตามลำดับ: หลัก -> สำรอง (และกรอง Key ที่ซ้ำกันออก)
-    const orderedKeys = [
-      ...new Set([...parseKeys(primaryKeysStr), ...parseKeys(fallbackKeyStr)]),
-    ];
-
-    if (orderedKeys.length === 0) {
+    if (!apiKey) {
       return res
         .status(500)
         .json({ error: "API Key is missing in environment variables" });
     }
 
-    let lastError = null;
+    // 3. ยิงข้อมูลไปที่ Google AI ด้วย Key เดียว จบในรอบเดียว
+    const ai = new GoogleGenAI({ apiKey: apiKey });
 
-    // 3. วนลูปการทำงานตามลำดับคิว
-    for (const apiKey of orderedKeys) {
-      try {
-        const ai = new GoogleGenAI({ apiKey: apiKey });
+    const response = await ai.models.generateContent({
+      model: "gemini-3.8-flash",
+      contents: userText,
+      config: {
+        systemInstruction: systemPrompt,
+        temperature: 0.4,
+      },
+    });
 
-        // 🔴 ใช้โมเดล gemini-3.8-flash และเอาระบบ Timeout ออกทั้งหมด
-        const response = await ai.models.generateContent({
-          model: "gemini-3.8-flash",
-          contents: userText,
-          config: {
-            systemInstruction: systemPrompt,
-            temperature: 0.4,
-          },
-        });
-
-        // หากสำเร็จ (ไม่ติด Limit) ให้ส่งคำตอบกลับและหยุดลูปทันที
-        return res.status(200).json({
-          reply: response.text.replace(/\n/g, "<br>"),
-        });
-      } catch (error) {
-        // หาก Key นี้พัง (เช่น โควต้าเต็ม 429) ให้ข้ามไปใช้ Key ตัวถัดไปแทน
-        console.warn(
-          `[Warning] API Key failed, switching to next... Error: ${error.message}`,
-        );
-        lastError = error;
-      }
-    }
-
-    // 4. กรณีที่ Key ทุกตัวติด Limit หรือพังหมด
-    console.error("All API keys failed:", lastError?.message);
-    return res.status(503).json({
-      error: "เซิร์ฟเวอร์ AI มีผู้ใช้งานหนาแน่น กรุณาลองใหม่ในอีกสักครู่ค่ะ",
+    // 4. ถ้าสำเร็จ ส่งคำตอบกลับไปที่หน้าเว็บทันที
+    return res.status(200).json({
+      reply: response.text.replace(/\n/g, "<br>"),
     });
   } catch (error) {
-    console.error("Critical Server Error:", error);
-    return res.status(500).json({ error: "Internal Server Error" });
+    // 5. ถ้าพัง (เช่น 429 โควต้าเต็ม หรือ 503 เซิร์ฟเวอร์ล่ม) จะเด้งมาที่นี่และจบงานทันที
+    console.error("API Error:", error.message);
+
+    return res.status(500).json({
+      error:
+        "เซิร์ฟเวอร์ AI มีผู้ใช้งานหนาแน่น หรือโควต้าเต็ม กรุณาลองใหม่ในอีกสักครู่ค่ะ",
+    });
   }
 };
