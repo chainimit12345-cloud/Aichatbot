@@ -1,21 +1,7 @@
 const { GoogleGenAI } = require("@google/genai");
 
-// ฟังก์ชันจำกัดเวลา (Timeout) ป้องกัน Vercel ค้างจนทะลุ 300 วินาที
-const withTimeout = (promise, ms) => {
-  let timeoutId;
-  const timeoutPromise = new Promise((_, reject) => {
-    timeoutId = setTimeout(() => {
-      reject(new Error(`Request timed out after ${ms} ms`));
-    }, ms);
-  });
-
-  return Promise.race([promise, timeoutPromise]).finally(() => {
-    clearTimeout(timeoutId);
-  });
-};
-
 module.exports = async function handler(req, res) {
-  // 1. จัดการ CORS (Cross-Origin Resource Sharing)
+  // 1. จัดการ CORS เพื่อให้หน้าเว็บคุยกับหลังบ้านได้
   res.setHeader("Access-Control-Allow-Credentials", true);
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
@@ -38,7 +24,7 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: "userText is required" });
     }
 
-    // 2. ดึงและจัดเรียง API Keys
+    // 2. จัดลำดับคิว API Key (เอา GEMINI_API_KEYS เป็นคิวที่ 1 เสมอ)
     const primaryKeysStr = process.env.GEMINI_API_KEYS || "";
     const fallbackKeyStr = process.env.GEMINI_API_KEY || "";
 
@@ -48,7 +34,7 @@ module.exports = async function handler(req, res) {
         .map((k) => k.trim())
         .filter(Boolean);
 
-    // รวม Key หลักและสำรอง พร้อมตัดตัวซ้ำออก (Deduplication)
+    // เรียงคิวตามลำดับ: หลัก -> สำรอง (และกรอง Key ที่ซ้ำกันออก)
     const orderedKeys = [
       ...new Set([...parseKeys(primaryKeysStr), ...parseKeys(fallbackKeyStr)]),
     ];
@@ -60,40 +46,37 @@ module.exports = async function handler(req, res) {
     }
 
     let lastError = null;
-    const TIMEOUT_MS = 35000; // จำกัดเวลารอ 15 วินาทีต่อ 1 Key
 
-    // 3. วนลูปใช้งาน API Key ตามลำดับเป๊ะๆ พร้อมระบบป้องกันค้าง
+    // 3. วนลูปการทำงานตามลำดับคิว
     for (const apiKey of orderedKeys) {
       try {
         const ai = new GoogleGenAI({ apiKey: apiKey });
 
-        // ใช้คำสั่ง generateContent ที่ถูกต้อง พร้อมบังคับ Timeout
-        const response = await withTimeout(
-          ai.models.generateContent({
-            model: "gemini-3.8-flash",
-            contents: userText,
-            config: {
-              systemInstruction: systemPrompt,
-              temperature: 0.4,
-            },
-          }),
-          TIMEOUT_MS,
-        );
+        // 🔴 ใช้โมเดล gemini-3.8-flash และเอาระบบ Timeout ออกทั้งหมด
+        const response = await ai.models.generateContent({
+          model: "gemini-3.8-flash",
+          contents: userText,
+          config: {
+            systemInstruction: systemPrompt,
+            temperature: 0.4,
+          },
+        });
 
-        // ดึงข้อความตอบกลับและจบการทำงานทันทีหากสำเร็จ
+        // หากสำเร็จ (ไม่ติด Limit) ให้ส่งคำตอบกลับและหยุดลูปทันที
         return res.status(200).json({
           reply: response.text.replace(/\n/g, "<br>"),
         });
       } catch (error) {
+        // หาก Key นี้พัง (เช่น โควต้าเต็ม 429) ให้ข้ามไปใช้ Key ตัวถัดไปแทน
         console.warn(
-          `[Warning] API Key failed or timed out, switching to next... Error: ${error.message}`,
+          `[Warning] API Key failed, switching to next... Error: ${error.message}`,
         );
         lastError = error;
       }
     }
 
-    // 4. กรณี Key ทุกตัวล้มเหลว หรือเซิร์ฟเวอร์ Google ล่มทั้งหมด
-    console.error("All API keys failed or timed out:", lastError?.message);
+    // 4. กรณีที่ Key ทุกตัวติด Limit หรือพังหมด
+    console.error("All API keys failed:", lastError?.message);
     return res.status(503).json({
       error: "เซิร์ฟเวอร์ AI มีผู้ใช้งานหนาแน่น กรุณาลองใหม่ในอีกสักครู่ค่ะ",
     });
