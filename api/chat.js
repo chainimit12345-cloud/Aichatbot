@@ -24,10 +24,9 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: "userText is required" });
     }
 
-    // 2. ดึง API Key มาใช้งานแค่ 1 ตัวเท่านั้น (ดึงตัวแรกสุดที่เจอมาใช้เลย)
-    let apiKey =
-      process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEYS || "";
-    apiKey = apiKey.split(",")[0].trim(); // ป้องกันกรณีเผลอใส่ลูกน้ำติดมา จะได้เอาแค่ตัวแรก
+    // 2. ดึง API Key จาก GEMINI_API_KEYS เท่านั้น
+    let apiKey = process.env.GEMINI_API_KEYS || "";
+    apiKey = apiKey.split(",")[0].trim(); // ดึงมาแค่ตัวแรกสุด เผื่อมีลูกน้ำติดมา
 
     if (!apiKey) {
       return res
@@ -52,7 +51,7 @@ module.exports = async function handler(req, res) {
       reply: response.text.replace(/\n/g, "<br>"),
     });
   } catch (error) {
-    // 5. ถ้าพัง (เช่น 429 โควต้าเต็ม หรือ 503 เซิร์ฟเวอร์ล่ม) จะเด้งมาที่นี่และจบงานทันที
+    // 5. ถ้าพัง (เช่น 429 โควต้าเต็ม) จะเด้งมาที่นี่และจบงานทันที
     console.error("API Error:", error.message);
 
     return res.status(500).json({
