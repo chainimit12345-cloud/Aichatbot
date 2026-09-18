@@ -1,10 +1,13 @@
 document.addEventListener("DOMContentLoaded", () => {
+
+  // =====================================================================
+  // ส่วนที่ 1: การสร้างและแสดงผลข้อมูลในเมนูด้านข้าง (Sidebar Data Rendering)
+  // =====================================================================
   function renderSidebarData() {
-   let phonesHTML = "";
+    let phonesHTML = "";
     APP_DATA.contact.phones.forEach((phone) => {
       phonesHTML += `
             <a href="${phone.link}" class="flex items-center justify-between group cursor-pointer relative block hover:bg-white p-1.5 -m-1.5 rounded-lg transition-all duration-300 mb-2 overflow-hidden">
-                <!-- 🔴 ลูกเล่น: ปกติจะเต็มจอ แต่พอชี้เมาส์ (group-hover) จะเว้นที่ว่างด้านขวา (pr-70px) ให้ปุ่มโทรโผล่มาแบบไม่ทับตัวหนังสือ -->
                 <div class="flex items-center gap-3 w-full transition-all duration-300 group-hover:pr-[70px]">
                     <div class="w-6 h-6 rounded-full bg-white flex items-center justify-center text-primary shadow-sm flex-shrink-0 group-hover:bg-primary group-hover:text-white transition">
                         <i class="fa-solid fa-phone text-[10px]"></i>
@@ -27,14 +30,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 ${phonesHTML}
                 <div class="mt-3">
                     <a href="${APP_DATA.contact.emailLink}" class="flex items-center justify-between group cursor-pointer relative block hover:bg-white p-1.5 -m-1.5 rounded-lg transition-all duration-300 mb-2 overflow-hidden">
-                        <!-- 🔴 ลูกเล่น: พอชี้เมาส์ จะเว้นที่ pr-50px ให้ปุ่มแตะส่งหลบเข้ามา ไม่บังอีเมล -->
                         <div class="flex items-center gap-3 w-full transition-all duration-300 group-hover:pr-[50px]">
                             <div class="w-6 h-6 rounded-full bg-white flex items-center justify-center text-primary shadow-sm flex-shrink-0 group-hover:bg-primary group-hover:text-white transition">
                                 <i class="fa-solid fa-envelope text-[10px]"></i>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-[9px] text-gray-400 font-medium leading-none mb-0.5">อีเมล</p>
-                                <!-- 🔴 เปลี่ยนกลับมาใช้ truncate จะทำให้อีเมลอยู่บรรทัดเดียวสวยๆ เสมอ -->
                                 <p class="text-[11px] xs:text-[12px] text-gray-700 font-bold leading-tight truncate">${APP_DATA.contact.email}</p>
                             </div>
                         </div>
@@ -45,7 +46,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     <div class="w-6 h-6 rounded-full bg-white flex items-center justify-center text-primary shadow-sm flex-shrink-0 mt-0.5">
                         <i class="fa-solid fa-location-dot text-[10px]"></i>
                     </div>
-                    <!-- 🔴 ลบ break-keep ออก เพื่อให้ที่อยู่ตัดบรรทัดได้เป็นธรรมชาติ ไม่ฉีกขาดตรงกลางคำ -->
                     <p class="text-[10px] xs:text-[11px] text-gray-600 leading-relaxed">${APP_DATA.contact.address}</p>
                 </div>
             </div>
@@ -90,12 +90,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 <i class="fa-solid fa-download text-gray-300 text-[10px] group-hover:text-primary flex-shrink-0"></i>
             </a>`;
     });
-    if (document.getElementById("forms-container"))
+    if (document.getElementById("forms-container")) {
       document.getElementById("forms-container").innerHTML = formsHTML;
+    }
 
     let lawsHTML = "";
     APP_DATA.laws.forEach((law) => {
-      // 🔴 เพิ่มคำสั่งปิด Sidebar ตรงนี้ (if window.innerWidth < 1024)
       lawsHTML += `
             <button onclick="document.getElementById('chat-input').value='${law.prompt}'; document.getElementById('send-btn').click(); if(window.innerWidth < 1024) document.getElementById('close-sidebar-btn').click();" class="w-full flex items-center justify-between p-3 bg-gray-50 border border-gray-100 rounded-xl hover:bg-white hover:border-primary/30 hover:shadow-sm transition group text-left">
                 <span class="text-[11px] xs:text-[12px] font-semibold text-gray-700 group-hover:text-primary transition line-clamp-1">${law.text}</span>
@@ -104,9 +104,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     document.getElementById("laws-container").innerHTML = lawsHTML;
   }
-
   renderSidebarData();
 
+
+  // =====================================================================
+  // ส่วนที่ 2: การควบคุม UI เมนูด้านข้าง (เปิด/ปิด Sidebar บนมือถือ)
+  // =====================================================================
   const sidebar = document.getElementById("sidebar");
   const overlay = document.getElementById("sidebar-overlay");
   const hamburgerBtn = document.getElementById("hamburger-btn");
@@ -122,42 +125,37 @@ document.addEventListener("DOMContentLoaded", () => {
         if (spans.length === 3) {
           spans[0].classList.toggle("translate-y-[8px]");
           spans[0].classList.toggle("rotate-45");
-
           spans[1].classList.toggle("opacity-0");
-
           spans[2].classList.toggle("-translate-y-[8px]");
           spans[2].classList.toggle("-rotate-45");
         }
       }
     }
   }
-
   if (hamburgerBtn) hamburgerBtn.addEventListener("click", toggleMenu);
   if (closeSidebarBtn) closeSidebarBtn.addEventListener("click", toggleMenu);
   if (overlay) overlay.addEventListener("click", toggleMenu);
 
+
+  // =====================================================================
+  // ส่วนที่ 3: ระบบสมองกลประมวลผลข้อความและการดึงข้อมูล AI (AI Router)
+  // =====================================================================
   const inputField = document.getElementById("chat-input");
   const sendBtn = document.getElementById("send-btn");
   const chatContainer = document.getElementById("chat-container");
   const inputArea = document.getElementById("input-area");
   const welcomeText = document.getElementById("welcome-text");
   const newChatBtn = document.getElementById("new-chat-btn");
-
   let isFirstMessage = true;
 
   async function fetchAIResponse(userText) {
     const text = userText.trim();
 
-    // 1. ระบบข้อมูลติดต่อ
-    if (
-      text.includes("ติดต่อ") ||
-      text.includes("เบอร์") ||
-      text.includes("โทร")
-    ) {
+    // 3.1 ตัวกรองด่วน: ถามเรื่องติดต่อ
+    if (text.includes("ติดต่อ") || text.includes("เบอร์") || text.includes("โทร")) {
       return new Promise((resolve) => {
         setTimeout(() => {
-          let contactReply =
-            '<p class="text-[12px] xs:text-[13px] text-gray-700 mb-2">คุณสามารถติดต่อเจ้าหน้าที่ พมจ.สกลนคร ตามกลุ่มงานที่ต้องการได้เลยค่ะ</p>';
+          let contactReply = '<p class="text-[12px] xs:text-[13px] text-gray-700 mb-2">คุณสามารถติดต่อเจ้าหน้าที่ พมจ.สกลนคร ตามกลุ่มงานที่ต้องการได้เลยค่ะ</p>';
           APP_DATA.contact.phones.forEach((phone) => {
             contactReply += `<div class="flex items-center gap-2 mb-1"><i class="fa-solid fa-phone text-primary w-4 text-center"></i> <span class="font-bold text-gray-800 text-[12px] xs:text-[13px]">${phone.label}:</span> <a href="${phone.link}" class="text-blue-500 hover:underline text-[12px] xs:text-[13px]">${phone.number}</a></div>`;
           });
@@ -175,189 +173,110 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // ตัวคัดกรองเจตนา (Intent Filter)
-    const questionKeywords = [
-      "สอบถาม",
-      "ทำยังไง",
-      "ทำไง",
-      "ยังไง",
-      "ข้อมูล",
-      "รายละเอียด",
-      "อะไร",
-      "เงื่อนไข",
-      "อยากถาม",
-      "อยากทราบ",
-      "กี่บาท",
-      "ขั้นตอน",
-      "แบบไหน",
-    ];
-    const isQuestionContext = questionKeywords.some((keyword) =>
-      text.includes(keyword),
-    );
-
-    if (!isQuestionContext) {
-      if (
-        text.includes("ขอรับเงินจัดการศพผู้สูงอายุ") ||
-        text.includes("จัดการศพ")
-      ) {
-        return new Promise((resolve) =>
-          setTimeout(
-            () =>
-              resolve(`
+    // 3.2 สร้างเมนูตัวเลือกเมื่อพิมพ์ "ขอแบบฟอร์มเอกสาร"
+    if (text === "ขอแบบฟอร์มเอกสาร" || text === "แบบฟอร์มเอกสาร" || text === "ขอแบบฟอร์ม") {
+        return new Promise((resolve) => setTimeout(() => resolve(`
+          <div class="mb-1">
+              <p class="text-[13px] text-gray-800 font-bold mb-3">📋 กรุณาเลือกแบบฟอร์มเอกสารที่ต้องการดาวน์โหลดค่ะ:</p>
+              <div class="flex flex-col gap-2">
+                  <button onclick="document.getElementById('chat-input').value='ขอฟอร์ม: จัดการศพผู้สูงอายุ'; document.getElementById('send-btn').click();" class="w-full text-left px-3.5 py-2.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-xl text-[12px] hover:bg-blue-500 hover:text-white transition shadow-sm font-medium">1. แบบคําขอรับเงินจัดการศพผู้สูงอายุ</button>
+                  <button onclick="document.getElementById('chat-input').value='ขอฟอร์ม: ทำบัตรคนพิการ'; document.getElementById('send-btn').click();" class="w-full text-left px-3.5 py-2.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-xl text-[12px] hover:bg-blue-500 hover:text-white transition shadow-sm font-medium">2. แบบคำขอมีบัตรประจำตัวคนพิการ</button>
+                  <button onclick="document.getElementById('chat-input').value='ขอฟอร์ม: เปลี่ยนผู้ดูแลคนพิการ'; document.getElementById('send-btn').click();" class="w-full text-left px-3.5 py-2.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-xl text-[12px] hover:bg-blue-500 hover:text-white transition shadow-sm font-medium">3. แบบรับรองการเปลี่ยนแปลงผู้ดูแลคนพิการ</button>
+                  <button onclick="document.getElementById('chat-input').value='ขอฟอร์ม: กู้ยืมเงิน'; document.getElementById('send-btn').click();" class="w-full text-left px-3.5 py-2.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-xl text-[12px] hover:bg-blue-500 hover:text-white transition shadow-sm font-medium">4. แบบฟอร์มคำร้องขอกู้ยืมประเภทบุคคล</button>
+                  <button onclick="document.getElementById('chat-input').value='ขอฟอร์ม: ผู้ประสบปัญหาทางสังคม'; document.getElementById('send-btn').click();" class="w-full text-left px-3.5 py-2.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-xl text-[12px] hover:bg-blue-500 hover:text-white transition shadow-sm font-medium">5. แบบคำขอรับความช่วยเหลือ (ปสค.1)</button>
+                  <button onclick="document.getElementById('chat-input').value='ขอฟอร์ม: ซ่อมแซมบ้าน'; document.getElementById('send-btn').click();" class="w-full text-left px-3.5 py-2.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-xl text-[12px] hover:bg-blue-500 hover:text-white transition shadow-sm font-medium">6. แบบสอบถามความต้องการซ่อมแซมบ้าน</button>
+              </div>
+          </div>`), 500));
+    }
+  
+    // 3.3 ดักจับและส่งไฟล์ PDF ตามปุ่มที่กด (ใช้คำเฉพาะเจาะจงเพื่อไม่ให้ชนกับคำถามทั่วไป)
+    if (text === "ขอฟอร์ม: จัดการศพผู้สูงอายุ") {
+          return new Promise((resolve) => setTimeout(() => resolve(`
               <div class="mb-1">
                   <p class="text-[13px] text-gray-800 font-bold mb-2">📄 แบบคําขอรับเงินสงเคราะห์และรับรองผู้รับผิดชอบในการจัดการศพผู้สูงอายุตามประเพณี (ศผส. 01)</p>
                   <p class="text-[12px] text-gray-600 mb-3 leading-relaxed"><b>เงื่อนไขสำคัญ:</b><br>• ต้องยื่นภายใน 6 เดือนนับตั้งแต่วันออกใบมรณบัตร<br>• ผู้สูงอายุที่เสียชีวิตต้องมีอายุเกิน 60 ปีบริบูรณ์ขึ้นไป สัญชาติไทย และมีคุณสมบัติตามโครงการลงทะเบียนเพื่อสวัสดิการแห่งรัฐ</p>
                   <a href="forms/แบบคําขอรับเงินสงเคราะห์และรับรองผู้รับผิดชอบในการจัดการศพผู้สูงอายุตามประเพณี.pdf" download target="_blank" class="inline-flex items-center gap-2 bg-red-50 text-red-600 border border-red-200 px-3.5 py-2 rounded-xl text-[12px] font-bold hover:bg-red-500 hover:text-white transition shadow-sm">
                       <i class="fa-solid fa-file-pdf"></i> ดาวน์โหลดแบบฟอร์ม (PDF)
                   </a>
-              </div>`),
-            500,
-          ),
-        );
-      }
-
-      if (
-        text.includes("ทำบัตรคนพิการ") ||
-        text.includes("บัตรประจำตัวคนพิการ") ||
-        text.includes("บัตรคนพิการ")
-      ) {
-        return new Promise((resolve) =>
-          setTimeout(
-            () =>
-              resolve(`
+              </div>`), 500));
+    }
+  
+    if (text === "ขอฟอร์ม: ทำบัตรคนพิการ") {
+          return new Promise((resolve) => setTimeout(() => resolve(`
               <div class="mb-1">
                   <p class="text-[13px] text-gray-800 font-bold mb-2">📄 แบบคำขอมีบัตรประจำตัวคนพิการ</p>
                   <p class="text-[12px] text-gray-600 mb-3 leading-relaxed"><b>การใช้งาน:</b><br>ใช้สำหรับยื่นขอมีบัตรครั้งแรก, บัตรเดิมหมดอายุ, ชำรุด, สูญหาย, มีการเปลี่ยนแปลงในสาระสำคัญ, หรืออายุครบ 60 ปีบริบูรณ์</p>
                   <a href="forms/แบบคำขอทำบัตร.pdf" download target="_blank" class="inline-flex items-center gap-2 bg-red-50 text-red-600 border border-red-200 px-3.5 py-2 rounded-xl text-[12px] font-bold hover:bg-red-500 hover:text-white transition shadow-sm">
                       <i class="fa-solid fa-file-pdf"></i> ดาวน์โหลดแบบฟอร์ม (PDF)
                   </a>
-              </div>`),
-            500,
-          ),
-        );
-      }
-
-      if (
-        text.includes("เปลี่ยนผู้ดูแล") ||
-        text.includes("เปลี่ยนแปลงผู้ดูแลคนพิการ")
-      ) {
-        return new Promise((resolve) =>
-          setTimeout(
-            () =>
-              resolve(`
+              </div>`), 500));
+    }
+  
+    if (text === "ขอฟอร์ม: เปลี่ยนผู้ดูแลคนพิการ") {
+          return new Promise((resolve) => setTimeout(() => resolve(`
               <div class="mb-1">
                   <p class="text-[13px] text-gray-800 font-bold mb-2">📄 แบบรับรองการเปลี่ยนแปลงผู้ดูแลคนพิการ</p>
                   <p class="text-[12px] text-gray-600 mb-3 leading-relaxed"><b>การใช้งาน:</b><br>ใช้สำหรับยื่นคำร้องเมื่อต้องการเปลี่ยนแปลงบุคคลที่ทำหน้าที่เป็นผู้ดูแลคนพิการในระบบ</p>
                   <a href="forms/แบบรับรองการเปลี่ยนแปลงผู้ดูแลคนพิการ.pdf" download target="_blank" class="inline-flex items-center gap-2 bg-red-50 text-red-600 border border-red-200 px-3.5 py-2 rounded-xl text-[12px] font-bold hover:bg-red-500 hover:text-white transition shadow-sm">
                       <i class="fa-solid fa-file-pdf"></i> ดาวน์โหลดแบบฟอร์ม (PDF)
                   </a>
-              </div>`),
-            500,
-          ),
-        );
-      }
-
-      if (
-        text.includes("กู้ยืม") ||
-        text.includes("กู้เงิน") ||
-        text.includes("ขอกู้ยืมประเภทบุคคล")
-      ) {
-        return new Promise((resolve) =>
-          setTimeout(
-            () =>
-              resolve(`
+              </div>`), 500));
+    }
+  
+    if (text === "ขอฟอร์ม: กู้ยืมเงิน") {
+          return new Promise((resolve) => setTimeout(() => resolve(`
               <div class="mb-1">
                   <p class="text-[13px] text-gray-800 font-bold mb-2">📄 แบบฟอร์มคำร้องขอกู้ยืมประเภทบุคคล</p>
                   <p class="text-[12px] text-gray-600 mb-3 leading-relaxed"><b>การใช้งาน:</b><br>ใช้สำหรับยื่นขอกู้ยืมเงินทุนเพื่อประกอบอาชีพสำหรับผู้ที่เข้าเกณฑ์ (เช่น คนพิการ หรือผู้สูงอายุ ตามเงื่อนไขของกองทุน)</p>
                   <a href="forms/แบบฟอร์มคำร้องขอกู้ยืมประเภทบุคคล.pdf" download target="_blank" class="inline-flex items-center gap-2 bg-red-50 text-red-600 border border-red-200 px-3.5 py-2 rounded-xl text-[12px] font-bold hover:bg-red-500 hover:text-white transition shadow-sm">
                       <i class="fa-solid fa-file-pdf"></i> ดาวน์โหลดแบบฟอร์ม (PDF)
                   </a>
-              </div>`),
-            500,
-          ),
-        );
-      }
-
-      if (
-        text.includes("ผู้ประสบปัญหาทางสังคม") ||
-        text.includes("ปสค.1") ||
-        text.includes("ปสค")
-      ) {
-        return new Promise((resolve) =>
-          setTimeout(
-            () =>
-              resolve(`
+              </div>`), 500));
+    }
+  
+    if (text === "ขอฟอร์ม: ผู้ประสบปัญหาทางสังคม") {
+          return new Promise((resolve) => setTimeout(() => resolve(`
               <div class="mb-1">
                   <p class="text-[13px] text-gray-800 font-bold mb-2">📄 แบบคำขอรับความช่วยเหลือผู้ประสบปัญหาทางสังคม (ปสค.1)</p>
                   <p class="text-[12px] text-gray-600 mb-3 leading-relaxed"><b>การใช้งาน:</b><br>ใช้สำหรับผู้ประสบปัญหาทางสังคมเพื่อยื่นขอรับการช่วยเหลือจากรัฐ เช่น เงินทุนประกอบอาชีพ, เงินสงเคราะห์, ค่าซ่อมแซมบ้าน หรือขอรับเครื่องช่วยความพิการ</p>
                   <a href="forms/แบบคำขอรับความช่วยเหลือผู้ประสบปัญหาทางสังคมกระทรวง-พม.-แบบ-ปสค.1.pdf" download target="_blank" class="inline-flex items-center gap-2 bg-red-50 text-red-600 border border-red-200 px-3.5 py-2 rounded-xl text-[12px] font-bold hover:bg-red-500 hover:text-white transition shadow-sm">
                       <i class="fa-solid fa-file-pdf"></i> ดาวน์โหลดแบบฟอร์ม (PDF)
                   </a>
-              </div>`),
-            500,
-          ),
-        );
-      }
-
-      if (
-        text.includes("ซ่อมแซมบ้าน") ||
-        text.includes("ปรับปรุงที่อยู่อาศัย") ||
-        text.includes("ซ่อมบ้าน")
-      ) {
-        return new Promise((resolve) =>
-          setTimeout(
-            () =>
-              resolve(`
+              </div>`), 500));
+    }
+  
+    if (text === "ขอฟอร์ม: ซ่อมแซมบ้าน") {
+          return new Promise((resolve) => setTimeout(() => resolve(`
               <div class="mb-1">
                   <p class="text-[13px] text-gray-800 font-bold mb-2">📄 แบบสอบถามความต้องการและคำขอปรับปรุง/ซ่อมแซมที่อยู่อาศัยของผู้สูงอายุ</p>
                   <p class="text-[12px] text-gray-600 mb-3 leading-relaxed"><b>ข้อควรรู้:</b><br>• ต้องระบุสภาพบ้านที่ต้องการปรับปรุง (เช่น พื้น หลังคา ห้องน้ำ ระบบไฟ)<br>• หากไม่ใช่เจ้าของบ้านหรือที่ดิน จะต้องทำ "หนังสือยินยอมในการปรับปรุง/ซ่อมแซม" แนบมาด้วย</p>
                   <a href="forms/แบบสอบถามความต้องการปรับปรุงซ่อมแซมที่อยู่อาศัยของผู้สูงอายุ.pdf" download target="_blank" class="inline-flex items-center gap-2 bg-red-50 text-red-600 border border-red-200 px-3.5 py-2 rounded-xl text-[12px] font-bold hover:bg-red-500 hover:text-white transition shadow-sm">
                       <i class="fa-solid fa-file-pdf"></i> ดาวน์โหลดแบบฟอร์ม (PDF)
                   </a>
-              </div>`),
-            500,
-          ),
-        );
-      }
+              </div>`), 500));
     }
 
-    // 2. ระบบตอบกลับด้วยการแนะนำตัวและสรุปหัวข้อกฎหมาย
+    // 3.4 ตัวกรองหมวดหมู่กฎหมาย: ทักทายและสรุปหัวข้อ พ.ร.บ. ในหมวดนั้นๆ
     let isLawCategory = false;
     let matchedCategory = "";
     let targetKnowledge = "";
 
-    if (
-      text.includes("กฎหมาย") &&
-      (text.includes("เด็ก") || text.includes("เยาวชน"))
-    ) {
+    if (text.includes("กฎหมาย") && (text.includes("เด็ก") || text.includes("เยาวชน"))) {
       isLawCategory = true;
       matchedCategory = "หมวดกฎหมายเด็กและเยาวชน";
-      targetKnowledge =
-        typeof LAW_CHILD_KNOWLEDGE !== "undefined" ? LAW_CHILD_KNOWLEDGE : "";
-    } else if (
-      text.includes("กฎหมาย") &&
-      (text.includes("สตรี") || text.includes("ครอบครัว"))
-    ) {
+      targetKnowledge = typeof LAW_CHILD_KNOWLEDGE !== "undefined" ? LAW_CHILD_KNOWLEDGE : "";
+    } else if (text.includes("กฎหมาย") && (text.includes("สตรี") || text.includes("ครอบครัว"))) {
       isLawCategory = true;
       matchedCategory = "หมวดกฎหมายสตรีและครอบครัว";
-      targetKnowledge =
-        typeof LAW_WOMEN_FAMILY_KNOWLEDGE !== "undefined"
-          ? LAW_WOMEN_FAMILY_KNOWLEDGE
-          : "";
+      targetKnowledge = typeof LAW_WOMEN_FAMILY_KNOWLEDGE !== "undefined" ? LAW_WOMEN_FAMILY_KNOWLEDGE : "";
     } else if (text.includes("กฎหมาย") && text.includes("คนพิการ")) {
       isLawCategory = true;
       matchedCategory = "หมวดกฎหมายคนพิการ";
-      targetKnowledge =
-        typeof LAW_DISABLED_KNOWLEDGE !== "undefined"
-          ? LAW_DISABLED_KNOWLEDGE
-          : "";
+      targetKnowledge = typeof LAW_DISABLED_KNOWLEDGE !== "undefined" ? LAW_DISABLED_KNOWLEDGE : "";
     } else if (text.includes("กฎหมาย") && text.includes("ผู้สูงอายุ")) {
       isLawCategory = true;
       matchedCategory = "หมวดกฎหมายผู้สูงอายุ";
-      targetKnowledge =
-        typeof LAW_ELDERLY_KNOWLEDGE !== "undefined"
-          ? LAW_ELDERLY_KNOWLEDGE
-          : "";
+      targetKnowledge = typeof LAW_ELDERLY_KNOWLEDGE !== "undefined" ? LAW_ELDERLY_KNOWLEDGE : "";
     }
 
     if (isLawCategory) {
@@ -374,16 +293,10 @@ document.addEventListener("DOMContentLoaded", () => {
               }
             }
 
-            let listHtml = headings
-              .map(
-                (h) =>
-                  `<li class="mb-2.5 text-gray-700 flex items-start gap-2.5"><i class="fa-solid fa-gavel text-primary mt-1 text-[12px]"></i> <span class="leading-snug">${h}</span></li>`,
-              )
-              .join("");
+            let listHtml = headings.map((h) => `<li class="mb-2.5 text-gray-700 flex items-start gap-2.5"><i class="fa-solid fa-gavel text-primary mt-1 text-[12px]"></i> <span class="leading-snug">${h}</span></li>`).join("");
 
             if (headings.length === 0) {
-              listHtml =
-                '<li class="mb-2.5 text-gray-700 flex items-start gap-2.5"><i class="fa-solid fa-gavel text-primary mt-1 text-[12px]"></i> <span>ข้อมูลพระราชบัญญัติที่เกี่ยวข้อง</span></li>';
+              listHtml = '<li class="mb-2.5 text-gray-700 flex items-start gap-2.5"><i class="fa-solid fa-gavel text-primary mt-1 text-[12px]"></i> <span>ข้อมูลพระราชบัญญัติที่เกี่ยวข้อง</span></li>';
             }
 
             let responseHtml = `
@@ -401,66 +314,33 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
             return resolve(responseHtml);
           } else {
-            return resolve(
-              "ขออภัยค่ะ ไม่พบฐานข้อมูลกฎหมายในระบบ โปรดตรวจสอบไฟล์ข้อมูลอีกครั้งค่ะ",
-            );
+            return resolve("ขออภัยค่ะ ไม่พบฐานข้อมูลกฎหมายในระบบ โปรดตรวจสอบไฟล์ข้อมูลอีกครั้งค่ะ");
           }
         }, 500);
       });
     }
 
-    // 3. ระบบส่งข้อมูลให้ AI วิเคราะห์
+    // 3.5 ส่งข้อความไปให้ Backend (AI) ประมวลผล
     try {
       let relevantLaws = "";
       const userMsg = text.toLowerCase();
 
-      // ดึงเฉพาะกฎหมายที่ตรงกับเจตนาของผู้ใช้ เพื่อประหยัด Token ป้องกันระบบล่ม
-      if (
-        /(เด็ก|เยาวชน|ลูก|บุตร|แรกเกิด|ทารก|ครรภ์|นักเรียน|โรงเรียน)/.test(
-          userMsg,
-        )
-      ) {
-        if (typeof LAW_CHILD_KNOWLEDGE !== "undefined")
-          relevantLaws += LAW_CHILD_KNOWLEDGE + "\n";
+      if (/(เด็ก|เยาวชน|ลูก|บุตร|แรกเกิด|ทารก|ครรภ์|นักเรียน|โรงเรียน)/.test(userMsg)) {
+        if (typeof LAW_CHILD_KNOWLEDGE !== "undefined") relevantLaws += LAW_CHILD_KNOWLEDGE + "\n";
       }
-      if (
-        /(สตรี|หญิง|ครอบครัว|ภรรยา|สามี|หย่า|สมรส|รุนแรง|ข่มขืน|ทำร้าย)/.test(
-          userMsg,
-        )
-      ) {
-        if (typeof LAW_WOMEN_FAMILY_KNOWLEDGE !== "undefined")
-          relevantLaws += LAW_WOMEN_FAMILY_KNOWLEDGE + "\n";
+      if (/(สตรี|หญิง|ครอบครัว|ภรรยา|สามี|หย่า|สมรส|รุนแรง|ข่มขืน|ทำร้าย)/.test(userMsg)) {
+        if (typeof LAW_WOMEN_FAMILY_KNOWLEDGE !== "undefined") relevantLaws += LAW_WOMEN_FAMILY_KNOWLEDGE + "\n";
       }
-      if (
-        /(พิการ|ทุพพลภาพ|ผู้ดูแล|ตาบอด|หูหนวก|วีลแชร์|แขนขาด|ขาขาด|ออทิสติก)/.test(
-          userMsg,
-        )
-      ) {
-        if (typeof LAW_DISABLED_KNOWLEDGE !== "undefined")
-          relevantLaws += LAW_DISABLED_KNOWLEDGE + "\n";
+      if (/(พิการ|ทุพพลภาพ|ผู้ดูแล|ตาบอด|หูหนวก|วีลแชร์|แขนขาด|ขาขาด|ออทิสติก)/.test(userMsg)) {
+        if (typeof LAW_DISABLED_KNOWLEDGE !== "undefined") relevantLaws += LAW_DISABLED_KNOWLEDGE + "\n";
       }
-      if (
-        /(สูงอายุ|คนแก่|ชรา|ศพ|เสียชีวิต|ตาย|อายุ 60|บำนาญ|เบี้ยยังชีพ)/.test(
-          userMsg,
-        )
-      ) {
-        if (typeof LAW_ELDERLY_KNOWLEDGE !== "undefined")
-          relevantLaws += LAW_ELDERLY_KNOWLEDGE + "\n";
+      if (/(สูงอายุ|คนแก่|ชรา|ศพ|เสียชีวิต|ตาย|อายุ 60|บำนาญ|เบี้ยยังชีพ)/.test(userMsg)) {
+        if (typeof LAW_ELDERLY_KNOWLEDGE !== "undefined") relevantLaws += LAW_ELDERLY_KNOWLEDGE + "\n";
       }
 
-      // ถ้าดึงคำจากข้างบนไม่ได้เลย แต่เป็นคำถามเกี่ยวกับกฎหมายกว้างๆ ค่อยแนบทั้งหมด
-      if (
-        relevantLaws === "" &&
-        /(กฎหมาย|สิทธิ|สวัสดิการ|ช่วยเหลือ|พ.ร.บ|เงิน)/.test(userMsg)
-      ) {
-        if (typeof LAW_CHILD_KNOWLEDGE !== "undefined")
-          relevantLaws += LAW_CHILD_KNOWLEDGE + "\n";
-        if (typeof LAW_WOMEN_FAMILY_KNOWLEDGE !== "undefined")
-          relevantLaws += LAW_WOMEN_FAMILY_KNOWLEDGE + "\n";
-        if (typeof LAW_DISABLED_KNOWLEDGE !== "undefined")
-          relevantLaws += LAW_DISABLED_KNOWLEDGE + "\n";
-        if (typeof LAW_ELDERLY_KNOWLEDGE !== "undefined")
-          relevantLaws += LAW_ELDERLY_KNOWLEDGE + "\n";
+      // 🔴 ถ้าคำถามกว้างเกินไป ไม่แนบกฎหมายเพื่อป้องกัน AI ค้าง แต่จะบอกให้ผู้ใช้ถามเจาะจงขึ้น
+      if (relevantLaws === "" && /(กฎหมาย|สิทธิ|สวัสดิการ|ช่วยเหลือ|พ.ร.บ|เงิน)/.test(userMsg)) {
+          return "คำถามของคุณกว้างเกินไปค่ะ รบกวนระบุหมวดหมู่เพิ่มเติม เช่น ถามเกี่ยวกับ **ผู้สูงอายุ, คนพิการ, สตรีและครอบครัว, หรือ เด็กและเยาวชน** เพื่อให้ระบบค้นหาข้อมูลที่แม่นยำที่สุดให้ค่ะ";
       }
 
       const systemPrompt = `
@@ -485,25 +365,19 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       return data.reply;
+
     } catch (error) {
       console.error("Network Error:", error);
 
-      // โหมดออฟไลน์ ค้นหาคำจากกฎหมายทั้ง 4 หมวด
+      // โหมดออฟไลน์
       let allLaws = "";
-      if (typeof LAW_CHILD_KNOWLEDGE !== "undefined")
-        allLaws += LAW_CHILD_KNOWLEDGE + "\n";
-      if (typeof LAW_WOMEN_FAMILY_KNOWLEDGE !== "undefined")
-        allLaws += LAW_WOMEN_FAMILY_KNOWLEDGE + "\n";
-      if (typeof LAW_DISABLED_KNOWLEDGE !== "undefined")
-        allLaws += LAW_DISABLED_KNOWLEDGE + "\n";
-      if (typeof LAW_ELDERLY_KNOWLEDGE !== "undefined")
-        allLaws += LAW_ELDERLY_KNOWLEDGE + "\n";
+      if (typeof LAW_CHILD_KNOWLEDGE !== "undefined") allLaws += LAW_CHILD_KNOWLEDGE + "\n";
+      if (typeof LAW_WOMEN_FAMILY_KNOWLEDGE !== "undefined") allLaws += LAW_WOMEN_FAMILY_KNOWLEDGE + "\n";
+      if (typeof LAW_DISABLED_KNOWLEDGE !== "undefined") allLaws += LAW_DISABLED_KNOWLEDGE + "\n";
+      if (typeof LAW_ELDERLY_KNOWLEDGE !== "undefined") allLaws += LAW_ELDERLY_KNOWLEDGE + "\n";
 
       if (allLaws.trim().length > 0 && text.length > 1) {
-        let lines = allLaws
-          .split("\n")
-          .map((line) => line.trim())
-          .filter((line) => line.length > 0);
+        let lines = allLaws.split("\n").map((line) => line.trim()).filter((line) => line.length > 0);
         let foundResults = lines.filter((line) => line.includes(text));
 
         if (foundResults.length > 0) {
@@ -513,11 +387,7 @@ document.addEventListener("DOMContentLoaded", () => {
           limitResults.forEach((line) => {
             let escapedText = text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
             let highlightRegex = new RegExp(escapedText, "gi");
-
-            let highlightedLine = line.replace(
-              highlightRegex,
-              `<span class="bg-yellow-200 text-gray-900 px-1 rounded font-semibold">$&</span>`,
-            );
+            let highlightedLine = line.replace(highlightRegex, `<span class="bg-yellow-200 text-gray-900 px-1 rounded font-semibold">$&</span>`);
             responseHtml += `<div class="bg-blue-50/50 p-3 rounded-xl border border-blue-100 mb-2 text-[12.5px] xs:text-[13px] leading-relaxed shadow-sm">${highlightedLine}</div>`;
           });
 
@@ -527,30 +397,26 @@ document.addEventListener("DOMContentLoaded", () => {
           return responseHtml;
         }
       }
-
+      
       return `ขออภัยค่ะ ตอนนี้ระบบไม่สามารถวิเคราะห์ข้อมูลด้วย AI ได้ (ข้อขัดข้องทางการเชื่อมต่อ) และไม่พบข้อมูลคำว่า <b>"${text}"</b> ในระบบค่ะ`;
     }
   }
 
+  // =====================================================================
+  // ส่วนที่ 4: ระบบควบคุมหน้าจอและกล่องข้อความ (Chat UI & Bubbles)
+  // =====================================================================
   async function sendMessage() {
     const message = inputField.value.trim();
 
     if (message !== "") {
       const now = new Date();
-      const timeStr =
-        now.getHours().toString().padStart(2, "0") +
-        ":" +
-        now.getMinutes().toString().padStart(2, "0");
+      const timeStr = now.getHours().toString().padStart(2, "0") + ":" + now.getMinutes().toString().padStart(2, "0");
 
       if (isFirstMessage) {
         isFirstMessage = false;
         welcomeText.style.display = "none";
-
-        // 🔴 ปรับระยะ pb-[180px] และ md:pb-[200px] ให้เป็นระยะกลางๆ ที่สวยงามที่สุดครับ
-        chatContainer.className =
-          "w-full h-full absolute inset-0 z-0 overflow-y-auto px-4 xs:px-6 md:px-8 pt-[80px] xs:pt-[90px] md:pt-[100px] pb-[180px] md:pb-[200px] flex flex-col gap-4 xs:gap-6 animate-fade-in";
-        inputArea.className =
-          "absolute bottom-0 left-0 right-0 px-4 xs:px-6 md:px-8 pb-4 xs:pb-6 bg-gradient-to-t from-bg-app via-bg-app to-transparent pt-20 pointer-events-none z-10";
+        chatContainer.className = "w-full h-full absolute inset-0 z-0 overflow-y-auto px-4 xs:px-6 md:px-8 pt-[80px] xs:pt-[90px] md:pt-[100px] pb-[180px] md:pb-[200px] flex flex-col gap-4 xs:gap-6 animate-fade-in";
+        inputArea.className = "absolute bottom-0 left-0 right-0 px-4 xs:px-6 md:px-8 pb-4 xs:pb-6 bg-gradient-to-t from-bg-app via-bg-app to-transparent pt-20 pointer-events-none z-10";
       }
 
       const userMsgHTML = `
@@ -588,12 +454,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const aiResponseText = await fetchAIResponse(message);
 
       document.getElementById(typingId).remove();
-
-      const replyTimeStr =
-        new Date().getHours().toString().padStart(2, "0") +
-        ":" +
-        new Date().getMinutes().toString().padStart(2, "0");
-
+      const replyTimeStr = new Date().getHours().toString().padStart(2, "0") + ":" + new Date().getMinutes().toString().padStart(2, "0");
       const botMsgHTML = `
             <div class="flex items-start gap-3 xs:gap-4 max-w-[95%] md:max-w-[90%] mt-2 xs:mt-4 animate-fade-in">
                 <div class="w-8 h-8 xs:w-10 xs:h-10 bg-primary rounded-full flex items-center justify-center text-white flex-shrink-0 shadow-md text-xs xs:text-base">
@@ -618,35 +479,35 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       inputField.disabled = false;
-
       if (window.innerWidth > 768) {
         inputField.focus();
       }
     }
   }
 
+  // =====================================================================
+  // ส่วนที่ 5: การดักจับเหตุการณ์การคลิกและกดปุ่ม (Event Listeners)
+  // =====================================================================
   if (newChatBtn) {
     newChatBtn.addEventListener("click", () => {
       isFirstMessage = true;
       chatContainer.innerHTML = "";
       chatContainer.className = "hidden";
-      inputArea.className =
-        "flex-1 flex flex-col justify-center px-4 xs:px-6 md:px-8 w-full max-w-4xl mx-auto transition-all duration-500 ease-in-out h-full";
+      inputArea.className = "flex-1 flex flex-col justify-center px-4 xs:px-6 md:px-8 w-full max-w-4xl mx-auto transition-all duration-500 ease-in-out h-full";
       welcomeText.style.display = "flex";
 
-      if (
-        window.innerWidth < 1024 &&
-        !sidebar.classList.contains("-translate-x-full")
-      ) {
+      if (window.innerWidth < 1024 && !sidebar.classList.contains("-translate-x-full")) {
         toggleMenu();
       }
     });
   }
 
   sendBtn.addEventListener("click", sendMessage);
+
   inputField.addEventListener("keypress", (event) => {
     if (event.key === "Enter" && !inputField.disabled) {
       sendMessage();
     }
   });
+
 });
