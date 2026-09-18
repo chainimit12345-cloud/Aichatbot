@@ -1,46 +1,71 @@
+const { GoogleGenAI } = require("@google/genai");
+
 module.exports = async function handler(req, res) {
-    // ป้องกันปัญหา CORS
-    res.setHeader('Access-Control-Allow-Credentials', true);
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-    res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+  res.setHeader("Access-Control-Allow-Credentials", true);
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET,OPTIONS,PATCH,DELETE,POST,PUT",
+  );
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version",
+  );
 
-    if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method === "OPTIONS") return res.status(200).end();
+  if (req.method !== "POST")
+    return res.status(405).json({ error: "Method Not Allowed" });
 
-    try {
-        const { userText, systemPrompt } = req.body;
-        const apiKey = process.env.GEMINI_API_KEY; 
+  try {
+    const { userText, systemPrompt } = req.body;
 
-        if (!apiKey) {
-            return res.status(200).json({ reply: "ขออภัยค่ะ ตอนนี้ระบบขัดข้องชั่วคราว รบกวนติดต่อเจ้าหน้าที่นะคะ" });
-        }
+    const keysString =
+      process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY;
 
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
+    if (!keysString) {
+      return res.status(500).json({ error: "API Key is missing" });
+    }
 
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                systemInstruction: { parts: [{ text: systemPrompt }] },
-                contents: [{ role: "user", parts: [{ text: userText }] }],
-                generationConfig: { temperature: 0.4 }
-            })
+    const apiKeys = keysString
+      .split(",")
+      .map((k) => k.trim())
+      .filter((k) => k);
+    const shuffledKeys = apiKeys.sort(() => 0.5 - Math.random());
+
+    let lastError = null;
+
+    for (const apiKey of shuffledKeys) {
+      try {
+        const ai = new GoogleGenAI({ apiKey: apiKey });
+
+        const interaction = await ai.interactions.create({
+          model: "gemini-3.8-flash",
+          input: userText,
+          config: {
+            systemInstruction: systemPrompt,
+            temperature: 0.4,
+          },
         });
 
-        const data = await response.json();
-
-        if (!response.ok) {
-            console.error("Google API Error:", data); // แอบเก็บ Error ไว้ดูหลังบ้านแทน
-            return res.status(200).json({ 
-                reply: "ขออภัยค่ะ ระบบไม่สามารถประมวลผลได้ในขณะนี้ กรุณาลองสอบถามใหม่อีกครั้งนะคะ" 
-            });
-        }
-        
-        let aiReply = data.candidates[0].content.parts[0].text;
-        res.status(200).json({ reply: aiReply.replace(/\n/g, '<br>') });
-
-    } catch (error) {
-        console.error("Server Error:", error);
-        res.status(200).json({ reply: "ขออภัยค่ะ การเชื่อมต่อขัดข้อง กรุณาลองใหม่อีกครั้งนะคะ" });
+        return res
+          .status(200)
+          .json({ reply: interaction.output_text.replace(/\n/g, "<br>") });
+      } catch (error) {
+        console.warn(
+          `[Warning] API Key failed, switching to next... Error: ${error.message}`,
+        );
+        lastError = error;
+      }
     }
+
+    console.error("All API keys failed:", lastError);
+    return res
+      .status(500)
+      .json({
+        error: "เซิร์ฟเวอร์ AI มีผู้ใช้งานหนาแน่น กรุณาลองใหม่ในอีกสักครู่ค่ะ",
+      });
+  } catch (error) {
+    console.error("Server Error:", error);
+    res.status(500).json({ error: error.message });
+  }
 };
