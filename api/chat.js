@@ -60,7 +60,7 @@ module.exports = async function handler(req, res) {
     }
 
     let lastError = null;
-    const TIMEOUT_MS = 15000; // จำกัดเวลารอ 15 วินาทีต่อ 1 Key
+    const TIMEOUT_MS = 35000; // จำกัดเวลารอ 15 วินาทีต่อ 1 Key
 
     // 3. วนลูปใช้งาน API Key ตามลำดับเป๊ะๆ พร้อมระบบป้องกันค้าง
     for (const apiKey of orderedKeys) {
