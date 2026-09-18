@@ -1,5 +1,44 @@
 document.addEventListener("DOMContentLoaded", () => {
   // =====================================================================
+  // ระบบควบคุมป้ายสถานะ (ออนไลน์ / ติด Limit)
+  // =====================================================================
+  let statusTimeout;
+
+  window.setAILimitStatus = function () {
+    const badge = document.getElementById("ai-status-badge");
+    const ping = document.getElementById("ai-status-ping");
+    const dot = document.getElementById("ai-status-dot");
+    const text = document.getElementById("ai-status-text");
+
+    if (badge && text) {
+      // เปลี่ยนเป็นโหมด ติด Limit (สีแดง)
+      badge.className =
+        "flex items-center gap-1.5 bg-red-50 px-2 py-0.5 xs:px-2.5 xs:py-1 rounded-full border border-red-200/60 shadow-sm mt-0.5 transition-colors duration-300";
+      ping.className =
+        "animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75";
+      dot.className =
+        "relative inline-flex rounded-full h-1.5 w-1.5 xs:h-2 xs:w-2 bg-red-500";
+      text.className =
+        "text-[9px] xs:text-[10px] font-semibold text-red-600 tracking-wide";
+      text.innerText = "ติดโควต้า";
+
+      // ตั้งเวลา 60 วินาที ให้กลับมาเป็นออนไลน์อัตโนมัติ
+      clearTimeout(statusTimeout);
+      statusTimeout = setTimeout(() => {
+        badge.className =
+          "flex items-center gap-1.5 bg-green-50 px-2 py-0.5 xs:px-2.5 xs:py-1 rounded-full border border-green-200/60 shadow-sm mt-0.5 transition-colors duration-300";
+        ping.className =
+          "animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75";
+        dot.className =
+          "relative inline-flex rounded-full h-1.5 w-1.5 xs:h-2 xs:w-2 bg-green-500";
+        text.className =
+          "text-[9px] xs:text-[10px] font-semibold text-green-600 tracking-wide";
+        text.innerText = "ออนไลน์";
+      }, 60000); // 60,000 มิลลิวินาที = 1 นาที
+    }
+  };
+
+  // =====================================================================
   // ส่วนที่ 1: การสร้างและแสดงผลข้อมูลในเมนูด้านข้าง (Sidebar Data Rendering)
   // =====================================================================
   function renderSidebarData() {
@@ -201,7 +240,7 @@ document.addEventListener("DOMContentLoaded", () => {
       );
     }
 
-    // 3.3 ดักจับและส่งไฟล์ PDF ตามปุ่มที่กด (ใช้คำเฉพาะเจาะจงเพื่อไม่ให้ชนกับคำถามทั่วไป)
+    // 3.3 ดักจับและส่งไฟล์ PDF ตามปุ่มที่กด
     if (text === "ขอฟอร์ม: จัดการศพผู้สูงอายุ") {
       return new Promise((resolve) =>
         setTimeout(
@@ -304,7 +343,7 @@ document.addEventListener("DOMContentLoaded", () => {
       );
     }
 
-    // 3.4 ตัวกรองหมวดหมู่กฎหมาย: ทักทายและสรุปหัวข้อ พ.ร.บ. ในหมวดนั้นๆ
+    // 3.4 ตัวกรองหมวดหมู่กฎหมาย
     let isLawCategory = false;
     let matchedCategory = "";
     let targetKnowledge = "";
@@ -430,7 +469,6 @@ document.addEventListener("DOMContentLoaded", () => {
           relevantLaws += LAW_ELDERLY_KNOWLEDGE + "\n";
       }
 
-      // ถ้าคำถามกว้างเกินไป ไม่แนบกฎหมายเพื่อป้องกัน AI ค้าง แต่จะบอกให้ผู้ใช้ถามเจาะจงขึ้น
       if (
         relevantLaws === "" &&
         /(กฎหมาย|สิทธิ|สวัสดิการ|ช่วยเหลือ|พ.ร.บ|เงิน)/.test(userMsg)
@@ -455,13 +493,17 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await response.json();
 
       if (!response.ok) {
-        console.error("Server Error:", data);
-        throw new Error("API Error");
+        throw new Error(data.error || "API Error");
       }
 
       return data.reply;
     } catch (error) {
       console.error("Network Error:", error);
+
+      // เมื่อเกิด Error (เช่น ติด Limit 429) ให้เปลี่ยนป้ายสถานะเป็นสีแดงทันที
+      if (typeof window.setAILimitStatus === "function") {
+        window.setAILimitStatus();
+      }
 
       // โหมดออฟไลน์
       let allLaws = "";
@@ -502,7 +544,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
 
-      return `ขออภัยค่ะ ตอนนี้ระบบไม่สามารถวิเคราะห์ข้อมูลด้วย AI ได้ (ข้อขัดข้องทางการเชื่อมต่อ) และไม่พบข้อมูลคำว่า <b>"${text}"</b> ในระบบค่ะ`;
+      return `ขออภัยค่ะ ตอนนี้ระบบมีผู้ใช้งานหนาแน่น (โควต้าเต็มชั่วคราว) กรุณารอสักครู่แล้วพิมพ์ถามใหม่อีกครั้งนะคะ 🙏`;
     }
   }
 
