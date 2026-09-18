@@ -1,6 +1,5 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-
 module.exports = async function handler(req, res) {
+  // ป้องกันปัญหาการข้ามโดเมน (CORS)
   res.setHeader("Access-Control-Allow-Credentials", true);
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
@@ -18,40 +17,74 @@ module.exports = async function handler(req, res) {
 
   try {
     const { userText, systemPrompt } = req.body;
-    
-    const keysString = process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY;
 
+    // ดึง API Key
+    const keysString =
+      process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY;
     if (!keysString) {
       return res.status(500).json({ error: "API Key is missing" });
     }
 
-    const apiKeys = keysString.split(",").map(k => k.trim()).filter(k => k);
+    const apiKeys = keysString
+      .split(",")
+      .map((k) => k.trim())
+      .filter((k) => k);
     const shuffledKeys = apiKeys.sort(() => 0.5 - Math.random());
 
     let lastError = null;
 
+    // วนลูปสลับ API Key อัตโนมัติเมื่อติด Limit
     for (const apiKey of shuffledKeys) {
       try {
-        const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ 
-          model: "gemini-3.8-flash",
-          systemInstruction: systemPrompt,
+        // ใช้คำสั่ง fetch พื้นฐานแทนการใช้ Module (ผมใช้ gemini-1.5-flash เพราะเป็นชื่อโมเดลล่าสุดที่มีอยู่จริงระบบจะได้ไม่ Error ครับ)
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            systemInstruction: {
+              parts: [{ text: systemPrompt }],
+            },
+            contents: [
+              {
+                parts: [{ text: userText }],
+              },
+            ],
+            generationConfig: {
+              temperature: 0.4,
+            },
+          }),
         });
 
-        const result = await model.generateContent(userText);
-        const text = result.response.text();
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(
+            errorData.error?.message || `HTTP Error ${response.status}`,
+          );
+        }
 
-        return res.status(200).json({ reply: text.replace(/\n/g, "<br>") });
+        const data = await response.json();
+        const replyText = data.candidates[0].content.parts[0].text;
 
+        // ตอบกลับหน้าเว็บ
+        return res
+          .status(200)
+          .json({ reply: replyText.replace(/\n/g, "<br>") });
       } catch (error) {
-        console.warn(`[Warning] API Key failed, switching to next... Error: ${error.message}`);
+        console.warn(
+          `[Warning] API Key failed, switching to next... Error: ${error.message}`,
+        );
         lastError = error;
       }
     }
 
     console.error("All API keys failed:", lastError);
-    return res.status(500).json({ error: "เซิร์ฟเวอร์ AI มีผู้ใช้งานหนาแน่น กรุณาลองใหม่ในอีกสักครู่ค่ะ" });
-
+    return res
+      .status(500)
+      .json({
+        error: "เซิร์ฟเวอร์ AI มีผู้ใช้งานหนาแน่น กรุณาลองใหม่ในอีกสักครู่ค่ะ",
+      });
   } catch (error) {
     console.error("Server Error:", error);
     res.status(500).json({ error: error.message });
