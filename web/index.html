@@ -240,7 +240,6 @@
             </div>
           </div>
         </div>
-        <!-- ปิดแท็ก div ที่หายไปตรงนี้ครับ -->
       </header>
 
       <div id="chat-container" class="hidden"></div>
@@ -287,36 +286,26 @@
             class="flex flex-wrap justify-center gap-2 mt-6 xs:mt-8 max-w-2xl px-2 animate-fade-in opacity-0"
             style="animation-delay: 0.2s; animation-fill-mode: forwards"
           >
+            <!-- ปุ่ม: ขอแบบฟอร์มเอกสาร -->
             <button
               onclick="
-                document.getElementById('chat-input').value =
-                  'ขอช่องทางการติดต่อเจ้าหน้าที่หน่อยครับ';
+                document.getElementById('chat-input').value = 'ขอแบบฟอร์มเอกสาร';
+                document.getElementById('send-btn').click();
+              "
+              class="bg-white border border-gray-200 py-2 px-3 xs:py-2.5 xs:px-4 rounded-xl text-[12px] xs:text-sm text-gray-600 font-medium hover:border-primary hover:text-primary hover:-translate-y-1 hover:shadow-md hover:shadow-primary/20 transition-all duration-300 flex items-center gap-1.5 xs:gap-2"
+            >
+              <i class="fa-solid fa-clipboard-list text-primary"></i> ขอแบบฟอร์มเอกสาร
+            </button>
+            
+            <!-- ปุ่ม: ติดต่อเจ้าหน้าที่ -->
+            <button
+              onclick="
+                document.getElementById('chat-input').value = 'ติดต่อเจ้าหน้าที่';
                 document.getElementById('send-btn').click();
               "
               class="bg-white border border-gray-200 py-2 px-3 xs:py-2.5 xs:px-4 rounded-xl text-[12px] xs:text-sm text-gray-600 font-medium hover:border-primary hover:text-primary hover:-translate-y-1 hover:shadow-md hover:shadow-primary/20 transition-all duration-300 flex items-center gap-1.5 xs:gap-2"
             >
               <i class="fa-solid fa-headset text-primary"></i> ติดต่อเจ้าหน้าที่
-            </button>
-            <button
-              onclick="
-                document.getElementById('chat-input').value =
-                  'ขอแบบฟอร์มทำบัตรคนพิการหน่อยครับ';
-                document.getElementById('send-btn').click();
-              "
-              class="bg-white border border-gray-200 py-2 px-3 xs:py-2.5 xs:px-4 rounded-xl text-[12px] xs:text-sm text-gray-600 font-medium hover:border-primary hover:text-primary hover:-translate-y-1 hover:shadow-md hover:shadow-primary/20 transition-all duration-300 flex items-center gap-1.5 xs:gap-2"
-            >
-              <i class="fa-solid fa-file-pdf text-primary"></i> ฟอร์มบัตรคนพิการ
-            </button>
-            <button
-              onclick="
-                document.getElementById('chat-input').value =
-                  'ขอแบบฟอร์มซ่อมแซมบ้านผู้สูงอายุหน่อยครับ';
-                document.getElementById('send-btn').click();
-              "
-              class="bg-white border border-gray-200 py-2 px-3 xs:py-2.5 xs:px-4 rounded-xl text-[12px] xs:text-sm text-gray-600 font-medium hover:border-primary hover:text-primary hover:-translate-y-1 hover:shadow-md hover:shadow-primary/20 transition-all duration-300 flex items-center gap-1.5 xs:gap-2"
-            >
-              <i class="fa-solid fa-house-chimney text-primary"></i>
-              ซ่อมบ้านผู้สูงอายุ
             </button>
           </div>
         </div>
