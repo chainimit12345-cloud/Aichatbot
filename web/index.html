@@ -221,19 +221,23 @@
             <h2 class="text-base xs:text-lg md:text-xl font-bold text-gray-800">
               AI พมจ.สกลนคร
             </h2>
-            <!-- ลูกเล่นป้ายสถานะออนไลน์แบบกะพริบ -->
+            <!-- ลูกเล่นป้ายสถานะออนไลน์ (อัปเดตเพิ่ม ID รองรับการเปลี่ยนสี) -->
             <div
-              class="flex items-center gap-1.5 bg-green-50 px-2 py-0.5 xs:px-2.5 xs:py-1 rounded-full border border-green-200/60 shadow-sm mt-0.5"
+              id="ai-status-badge"
+              class="flex items-center gap-1.5 bg-green-50 px-2 py-0.5 xs:px-2.5 xs:py-1 rounded-full border border-green-200/60 shadow-sm mt-0.5 transition-colors duration-300"
             >
               <div class="relative flex h-1.5 w-1.5 xs:h-2 xs:w-2">
                 <span
+                  id="ai-status-ping"
                   class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"
                 ></span>
                 <span
+                  id="ai-status-dot"
                   class="relative inline-flex rounded-full h-1.5 w-1.5 xs:h-2 xs:w-2 bg-green-500"
                 ></span>
               </div>
               <span
+                id="ai-status-text"
                 class="text-[9px] xs:text-[10px] font-semibold text-green-600 tracking-wide"
                 >ออนไลน์</span
               >
@@ -253,7 +257,7 @@
           id="welcome-text"
           class="flex flex-col items-center justify-center mb-6 xs:mb-10 w-full mt-12 xs:mt-0"
         >
-          <!-- โลโก้ พม. (แบบไม่มีพื้นหลังกรอบ) + เอฟเฟกต์ลอย -->
+          <!-- โลโก้ พม. -->
           <div
             class="w-16 h-16 xs:w-20 xs:h-20 flex items-center justify-center mb-4 xs:mb-6 animate-float hover:scale-110 transition-transform duration-300 cursor-default"
           >
@@ -264,7 +268,7 @@
             />
           </div>
 
-          <!-- ข้อความทักทาย + เอฟเฟกต์ไล่สี -->
+          <!-- ข้อความทักทาย -->
           <h2
             class="text-xl xs:text-2xl md:text-3xl font-extrabold mb-2 xs:mb-3 flex items-center gap-2 animate-fade-in bg-gradient-text opacity-0"
             style="animation-fill-mode: forwards"
@@ -289,18 +293,21 @@
             <!-- ปุ่ม: ขอแบบฟอร์มเอกสาร -->
             <button
               onclick="
-                document.getElementById('chat-input').value = 'ขอแบบฟอร์มเอกสาร';
+                document.getElementById('chat-input').value =
+                  'ขอแบบฟอร์มเอกสาร';
                 document.getElementById('send-btn').click();
               "
               class="bg-white border border-gray-200 py-2 px-3 xs:py-2.5 xs:px-4 rounded-xl text-[12px] xs:text-sm text-gray-600 font-medium hover:border-primary hover:text-primary hover:-translate-y-1 hover:shadow-md hover:shadow-primary/20 transition-all duration-300 flex items-center gap-1.5 xs:gap-2"
             >
-              <i class="fa-solid fa-clipboard-list text-primary"></i> ขอแบบฟอร์มเอกสาร
+              <i class="fa-solid fa-clipboard-list text-primary"></i>
+              ขอแบบฟอร์มเอกสาร
             </button>
-            
+
             <!-- ปุ่ม: ติดต่อเจ้าหน้าที่ -->
             <button
               onclick="
-                document.getElementById('chat-input').value = 'ติดต่อเจ้าหน้าที่';
+                document.getElementById('chat-input').value =
+                  'ติดต่อเจ้าหน้าที่';
                 document.getElementById('send-btn').click();
               "
               class="bg-white border border-gray-200 py-2 px-3 xs:py-2.5 xs:px-4 rounded-xl text-[12px] xs:text-sm text-gray-600 font-medium hover:border-primary hover:text-primary hover:-translate-y-1 hover:shadow-md hover:shadow-primary/20 transition-all duration-300 flex items-center gap-1.5 xs:gap-2"
@@ -310,7 +317,7 @@
           </div>
         </div>
 
-        <!-- กล่องพิมพ์ข้อความ (คลีน มินิมอล ไม่มีปุ่มแนบไฟล์) -->
+        <!-- กล่องพิมพ์ข้อความ -->
         <div
           class="bg-white border border-gray-200 rounded-2xl p-2 shadow-lg shadow-gray-200/50 pointer-events-auto w-full z-20 relative flex items-end focus-within:shadow-xl focus-within:border-primary/30 transition-all duration-300"
         >
@@ -341,7 +348,8 @@
         <p
           class="text-center text-[9px] xs:text-[10px] text-gray-400 mt-3 xs:mt-4 pointer-events-auto z-20 relative px-4"
         >
-          AI อาจให้ข้อมูลที่ไม่ถูกต้องได้ กรุณาตรวจสอบข้อมูลกับเจ้าหน้าที่ พมจ.สกลนคร
+          AI อาจให้ข้อมูลที่ไม่ถูกต้องได้ กรุณาตรวจสอบข้อมูลกับเจ้าหน้าที่
+          พมจ.สกลนคร
         </p>
       </div>
     </main>
