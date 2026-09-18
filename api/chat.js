@@ -1,4 +1,4 @@
-const { GoogleGenAI } = require("@google/genai");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Credentials", true);
@@ -18,52 +18,40 @@ module.exports = async function handler(req, res) {
 
   try {
     const { userText, systemPrompt } = req.body;
-
-    const keysString =
-      process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY;
+    
+    const keysString = process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY;
 
     if (!keysString) {
       return res.status(500).json({ error: "API Key is missing" });
     }
 
-    const apiKeys = keysString
-      .split(",")
-      .map((k) => k.trim())
-      .filter((k) => k);
+    const apiKeys = keysString.split(",").map(k => k.trim()).filter(k => k);
     const shuffledKeys = apiKeys.sort(() => 0.5 - Math.random());
 
     let lastError = null;
 
     for (const apiKey of shuffledKeys) {
       try {
-        const ai = new GoogleGenAI({ apiKey: apiKey });
-
-        const interaction = await ai.interactions.create({
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ 
           model: "gemini-3.8-flash",
-          input: userText,
-          config: {
-            systemInstruction: systemPrompt,
-            temperature: 0.4,
-          },
+          systemInstruction: systemPrompt,
         });
 
-        return res
-          .status(200)
-          .json({ reply: interaction.output_text.replace(/\n/g, "<br>") });
+        const result = await model.generateContent(userText);
+        const text = result.response.text();
+
+        return res.status(200).json({ reply: text.replace(/\n/g, "<br>") });
+
       } catch (error) {
-        console.warn(
-          `[Warning] API Key failed, switching to next... Error: ${error.message}`,
-        );
+        console.warn(`[Warning] API Key failed, switching to next... Error: ${error.message}`);
         lastError = error;
       }
     }
 
     console.error("All API keys failed:", lastError);
-    return res
-      .status(500)
-      .json({
-        error: "เซิร์ฟเวอร์ AI มีผู้ใช้งานหนาแน่น กรุณาลองใหม่ในอีกสักครู่ค่ะ",
-      });
+    return res.status(500).json({ error: "เซิร์ฟเวอร์ AI มีผู้ใช้งานหนาแน่น กรุณาลองใหม่ในอีกสักครู่ค่ะ" });
+
   } catch (error) {
     console.error("Server Error:", error);
     res.status(500).json({ error: error.message });
