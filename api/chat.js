@@ -47,7 +47,7 @@ module.exports = async function handler(req, res) {
 
         // 🔴 ใช้โมเดล gemini-3.8-flash ตามเดิม พร้อมโครงสร้างคำสั่งที่ถูกต้อง
         const response = await ai.models.generateContent({
-          model: "gemini-1.5-flash",
+          model: "gemini-3.8-flash",
           contents: userText,
           config: {
             systemInstruction: systemPrompt,
